@@ -1,0 +1,317 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>隱私權政策 - LIEN Photography</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@100;200;300;400;500;600;700;900&family=Ma+Shan+Zheng&display=swap" rel="stylesheet">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        body {
+            font-family: 'Noto Sans TC', 'PingFang TC', 'Microsoft JhengHei', sans-serif;
+            line-height: 1.8;
+            color: rgba(255, 255, 255, 0.9);
+            background: #000;
+            min-height: 100vh;
+            position: relative;
+            overflow-x: hidden;
+        }
+        /* Background effects */
+        body::before {
+            content: '';
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background:
+                radial-gradient(circle at 20% 30%, rgba(255, 255, 255, 0.05) 0%, transparent 50%),
+                radial-gradient(circle at 80% 70%, rgba(255, 255, 255, 0.03) 0%, transparent 50%);
+            pointer-events: none;
+            z-index: 0;
+        }
+        .container {
+            position: relative;
+            z-index: 1;
+            max-width: 900px;
+            margin: 0 auto;
+            background: rgba(29, 29, 29, 0.4);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            padding: 60px 40px;
+            border-radius: 24px;
+            box-shadow:
+                0 20px 60px rgba(0, 0, 0, 0.5),
+                0 0 100px rgba(255, 255, 255, 0.05) inset;
+            margin: 40px 20px;
+        }
+        h1 {
+            color: rgba(255, 255, 255, 1);
+            font-family: 'Ma Shan Zheng', serif;
+            font-size: 3em;
+            margin-bottom: 15px;
+            padding-bottom: 20px;
+            border-bottom: 2px solid rgba(255, 255, 255, 0.2);
+            text-shadow: 0 4px 20px rgba(255, 255, 255, 0.1);
+        }
+        h2 {
+            color: rgba(255, 255, 255, 0.95);
+            font-size: 1.8em;
+            margin-top: 40px;
+            margin-bottom: 20px;
+            font-weight: 600;
+        }
+        h3 {
+            color: rgba(255, 255, 255, 0.85);
+            font-size: 1.3em;
+            margin-top: 25px;
+            margin-bottom: 12px;
+            font-weight: 500;
+        }
+        p {
+            margin-bottom: 18px;
+            text-align: justify;
+            color: rgba(255, 255, 255, 0.7);
+            line-height: 1.9;
+        }
+        ul, ol {
+            margin-left: 30px;
+            margin-bottom: 18px;
+        }
+        li {
+            margin-bottom: 10px;
+            color: rgba(255, 255, 255, 0.7);
+            line-height: 1.9;
+        }
+        strong {
+            color: rgba(255, 255, 255, 0.9);
+            font-weight: 600;
+        }
+        .last-updated {
+            color: rgba(255, 255, 255, 0.5);
+            font-size: 0.9em;
+            margin-bottom: 40px;
+            font-style: italic;
+        }
+        .contact-info {
+            background: rgba(255, 255, 255, 0.05);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            padding: 25px;
+            border-radius: 16px;
+            margin-top: 40px;
+        }
+        .contact-info p {
+            margin-bottom: 10px;
+        }
+        a {
+            color: rgba(255, 255, 255, 0.8);
+            text-decoration: none;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.3);
+            transition: all 0.3s ease;
+        }
+        a:hover {
+            color: rgba(255, 255, 255, 1);
+            border-bottom-color: rgba(255, 255, 255, 0.6);
+        }
+        .nav-links {
+            margin-top: 50px;
+            padding-top: 30px;
+            border-top: 1px solid rgba(255, 255, 255, 0.1);
+            text-align: center;
+        }
+        .nav-links a {
+            display: inline-block;
+            margin: 0 15px;
+            padding: 8px 20px;
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 8px;
+            transition: all 0.3s ease;
+        }
+        .nav-links a:hover {
+            background: rgba(255, 255, 255, 0.1);
+            border-color: rgba(255, 255, 255, 0.2);
+            transform: translateY(-2px);
+        }
+        .lang-switcher {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            display: flex;
+            gap: 10px;
+        }
+        .lang-switcher a {
+            padding: 8px 16px;
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 8px;
+            color: rgba(255, 255, 255, 0.7);
+            text-decoration: none;
+            transition: all 0.3s ease;
+            font-size: 0.9em;
+        }
+        .lang-switcher a:hover,
+        .lang-switcher a.active {
+            background: rgba(255, 255, 255, 0.1);
+            border-color: rgba(255, 255, 255, 0.2);
+            color: rgba(255, 255, 255, 1);
+        }
+        @media (max-width: 768px) {
+            .lang-switcher {
+                position: static;
+                margin-bottom: 20px;
+            }
+            .container {
+                padding: 40px 20px;
+                margin: 20px 10px;
+                border-radius: 16px;
+            }
+            h1 {
+                font-size: 2em;
+            }
+            h2 {
+                font-size: 1.5em;
+            }
+            h3 {
+                font-size: 1.2em;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <a href="/" class="home-link" style="display:inline-flex;align-items:center;gap:6px;color:rgba(255,255,255,0.55);text-decoration:none;font-size:14px;margin-bottom:16px;transition:color 0.3s;" onmouseover="this.style.color='rgba(255,255,255,0.95)'" onmouseout="this.style.color='rgba(255,255,255,0.55)'">&larr; 返回首頁</a>
+        <div class="lang-switcher">
+            <a href="/privacy-policy.html" class="active">中文</a>
+            <a href="/privacy-policy-en.html">English</a>
+        </div>
+
+        <h1>隱私權政策</h1>
+        <p class="last-updated">最後更新日期：2025年1月</p>
+
+        <h2>1. 簡介</h2>
+        <p>歡迎使用 LIEN Photography（以下簡稱「本網站」）。我們非常重視您的隱私權，並致力於保護您的個人資料。本隱私權政策說明我們如何收集、使用、儲存和保護您的個人資訊。</p>
+
+        <h2>2. 資料收集</h2>
+        <h3>2.1 我們收集的資料類型</h3>
+        <p>當您使用本網站時，我們可能會收集以下類型的資料：</p>
+        <ul>
+            <li><strong>聯絡資訊：</strong>當您透過聯絡表單與我們聯繫時，我們會收集您的姓名、電子郵件地址、電話號碼等資訊。</li>
+            <li><strong>使用資料：</strong>我們會收集您使用本網站的方式，包括瀏覽的頁面、停留時間、點擊行為等。</li>
+            <li><strong>技術資料：</strong>包括 IP 位址、瀏覽器類型、作業系統、裝置資訊等。</li>
+            <li><strong>照片資料：</strong>如果您上傳照片，我們會儲存照片檔案及其相關資訊（如標題、描述、拍攝日期等）。</li>
+            <li><strong>認證資料：</strong>我們使用 Firebase 匿名認證來識別使用者，但不會收集您的個人身份資訊。</li>
+        </ul>
+
+        <h3>2.2 資料收集方式</h3>
+        <ul>
+            <li>您主動提供的資料（如聯絡表單、照片上傳）</li>
+            <li>自動收集的技術資料（如 Cookies、瀏覽器資訊）</li>
+            <li>第三方服務提供的資料（如 Firebase Analytics）</li>
+        </ul>
+
+        <h2>3. 資料使用目的</h2>
+        <p>我們使用收集的資料用於以下目的：</p>
+        <ul>
+            <li>提供和改善本網站的服務</li>
+            <li>回應您的詢問和請求</li>
+            <li>處理照片上傳、分類和管理</li>
+            <li>使用 AI 技術進行照片分類（使用 Google Gemini API）</li>
+            <li>分析網站使用情況以改善使用者體驗</li>
+            <li>確保網站安全和防止詐欺行為</li>
+            <li>遵守法律義務</li>
+        </ul>
+
+        <h2>4. 資料儲存與安全</h2>
+        <h3>4.1 資料儲存</h3>
+        <p>您的資料儲存在以下服務中：</p>
+        <ul>
+            <li><strong>Firebase Storage：</strong>用於儲存上傳的照片檔案</li>
+            <li><strong>Firestore：</strong>用於儲存照片的元資料和相關資訊</li>
+            <li><strong>EmailJS：</strong>用於處理聯絡表單的郵件發送</li>
+            <li><strong>Google Gemini API：</strong>用於 AI 照片分類服務</li>
+        </ul>
+
+        <h3>4.2 資料安全措施</h3>
+        <p>我們採取以下安全措施保護您的資料：</p>
+        <ul>
+            <li>使用加密技術保護資料傳輸</li>
+            <li>實施存取控制和身份驗證機制</li>
+            <li>定期備份資料</li>
+            <li>使用信譽良好的第三方服務提供商（Google Firebase）</li>
+            <li>限制只有授權人員才能存取資料</li>
+        </ul>
+
+        <h2>5. 資料分享與揭露</h2>
+        <p>我們不會出售、交易或出租您的個人資料給第三方。我們僅在以下情況下分享您的資料：</p>
+        <ul>
+            <li><strong>服務提供商：</strong>與協助我們營運網站的第三方服務提供商（如 Firebase、EmailJS、Google）分享必要的資料</li>
+            <li><strong>法律要求：</strong>當法律要求或為保護我們的權利時</li>
+            <li><strong>同意：</strong>在您明確同意的情況下</li>
+        </ul>
+
+        <h2>6. 第三方服務</h2>
+        <p>本網站使用以下第三方服務，這些服務可能有自己的隱私權政策：</p>
+        <ul>
+            <li><strong>Google Firebase：</strong>用於資料儲存、認證和分析服務</li>
+            <li><strong>Google Gemini API：</strong>用於 AI 照片分類</li>
+            <li><strong>EmailJS：</strong>用於郵件發送服務</li>
+        </ul>
+        <p>我們建議您查看這些服務的隱私權政策，以了解他們如何處理您的資料。</p>
+
+        <h2>7. Cookies 與追蹤技術</h2>
+        <p>本網站使用 Cookies 和類似技術來改善使用者體驗、分析網站流量和提供個人化內容。詳細資訊請參閱我們的 <a href="/cookie-policy.html">Cookie 政策</a>。</p>
+
+        <h2>8. 您的權利</h2>
+        <p>根據適用的資料保護法規，您享有以下權利：</p>
+        <ul>
+            <li><strong>存取權：</strong>要求查看我們持有的您的個人資料</li>
+            <li><strong>更正權：</strong>要求更正不正確或不完整的資料</li>
+            <li><strong>刪除權：</strong>要求刪除您的個人資料</li>
+            <li><strong>限制處理權：</strong>要求限制我們處理您的資料</li>
+            <li><strong>資料可攜權：</strong>要求以結構化格式取得您的資料</li>
+            <li><strong>反對權：</strong>反對我們處理您的資料</li>
+        </ul>
+        <p>如要行使這些權利，請透過聯絡表單或電子郵件與我們聯繫。</p>
+
+        <h2>9. 資料保留</h2>
+        <p>我們會保留您的資料，直到：</p>
+        <ul>
+            <li>您要求刪除資料</li>
+            <li>資料不再需要提供服務</li>
+            <li>法律要求我們保留資料的期限屆滿</li>
+        </ul>
+
+        <h2>10. 兒童隱私</h2>
+        <p>本網站不針對 13 歲以下的兒童。我們不會故意收集 13 歲以下兒童的個人資料。如果我們發現收集了兒童的資料，我們會立即刪除。</p>
+
+        <h2>11. 國際資料傳輸</h2>
+        <p>您的資料可能會被傳輸到並儲存在您所在國家/地區以外的伺服器上。我們會確保採取適當的安全措施來保護您的資料。</p>
+
+        <h2>12. 政策變更</h2>
+        <p>我們可能會不時更新本隱私權政策。任何變更都會在本頁面上發布，並更新「最後更新日期」。我們建議您定期查看本政策以了解最新資訊。</p>
+
+        <h2>13. 聯絡我們</h2>
+        <div class="contact-info">
+            <p>如果您對本隱私權政策有任何疑問、意見或要求，請透過以下方式與我們聯繫：</p>
+            <p><strong>電子郵件：</strong>ian921030@gmail.com</p>
+            <p><strong>電話：</strong>+886 966003288</p>
+            <p><strong>網站：</strong><a href="https://lien-gallery.web.app">https://lien-gallery.web.app</a></p>
+        </div>
+
+        <div class="nav-links">
+            <a href="/">返回首頁</a>
+            <a href="/terms-of-service.html">服務條款</a>
+            <a href="/cookie-policy.html">Cookie 政策</a>
+        </div>
+    </div>
+</body>
+</html>

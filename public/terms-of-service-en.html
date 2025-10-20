@@ -1,0 +1,355 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Terms of Service - LIEN Photography</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@100;200;300;400;500;600;700;900&family=Ma+Shan+Zheng&display=swap" rel="stylesheet">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        body {
+            font-family: 'Helvetica Neue', 'Noto Sans TC', 'PingFang TC', 'Microsoft JhengHei', sans-serif;
+            line-height: 1.8;
+            color: rgba(255, 255, 255, 0.9);
+            background: #000;
+            min-height: 100vh;
+            position: relative;
+            overflow-x: hidden;
+        }
+        body::before {
+            content: '';
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background:
+                radial-gradient(circle at 20% 30%, rgba(255, 255, 255, 0.05) 0%, transparent 50%),
+                radial-gradient(circle at 80% 70%, rgba(255, 255, 255, 0.03) 0%, transparent 50%);
+            pointer-events: none;
+            z-index: 0;
+        }
+        .container {
+            position: relative;
+            z-index: 1;
+            max-width: 900px;
+            margin: 0 auto;
+            background: rgba(29, 29, 29, 0.4);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            padding: 60px 40px;
+            border-radius: 24px;
+            box-shadow:
+                0 20px 60px rgba(0, 0, 0, 0.5),
+                0 0 100px rgba(255, 255, 255, 0.05) inset;
+            margin: 40px 20px;
+        }
+        .lang-switcher {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            display: flex;
+            gap: 10px;
+        }
+        .lang-switcher a {
+            padding: 8px 16px;
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 8px;
+            color: rgba(255, 255, 255, 0.7);
+            text-decoration: none;
+            transition: all 0.3s ease;
+            font-size: 0.9em;
+        }
+        .lang-switcher a:hover,
+        .lang-switcher a.active {
+            background: rgba(255, 255, 255, 0.1);
+            border-color: rgba(255, 255, 255, 0.2);
+            color: rgba(255, 255, 255, 1);
+        }
+        h1 {
+            color: rgba(255, 255, 255, 1);
+            font-family: 'Ma Shan Zheng', serif;
+            font-size: 3em;
+            margin-bottom: 15px;
+            padding-bottom: 20px;
+            border-bottom: 2px solid rgba(255, 255, 255, 0.2);
+            text-shadow: 0 4px 20px rgba(255, 255, 255, 0.1);
+        }
+        h2 {
+            color: rgba(255, 255, 255, 0.95);
+            font-size: 1.8em;
+            margin-top: 40px;
+            margin-bottom: 20px;
+            font-weight: 600;
+        }
+        h3 {
+            color: rgba(255, 255, 255, 0.85);
+            font-size: 1.3em;
+            margin-top: 25px;
+            margin-bottom: 12px;
+            font-weight: 500;
+        }
+        p {
+            margin-bottom: 18px;
+            text-align: justify;
+            color: rgba(255, 255, 255, 0.7);
+            line-height: 1.9;
+        }
+        ul, ol {
+            margin-left: 30px;
+            margin-bottom: 18px;
+        }
+        li {
+            margin-bottom: 10px;
+            color: rgba(255, 255, 255, 0.7);
+            line-height: 1.9;
+        }
+        strong {
+            color: rgba(255, 255, 255, 0.9);
+            font-weight: 600;
+        }
+        .last-updated {
+            color: rgba(255, 255, 255, 0.5);
+            font-size: 0.9em;
+            margin-bottom: 40px;
+            font-style: italic;
+        }
+        .contact-info {
+            background: rgba(255, 255, 255, 0.05);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            padding: 25px;
+            border-radius: 16px;
+            margin-top: 40px;
+        }
+        .contact-info p {
+            margin-bottom: 10px;
+        }
+        .warning {
+            background: rgba(255, 193, 7, 0.1);
+            border-left: 4px solid rgba(255, 193, 7, 0.5);
+            padding: 20px;
+            margin: 25px 0;
+            border-radius: 8px;
+        }
+        .warning strong {
+            color: rgba(255, 255, 255, 0.95);
+        }
+        a {
+            color: rgba(255, 255, 255, 0.8);
+            text-decoration: none;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.3);
+            transition: all 0.3s ease;
+        }
+        a:hover {
+            color: rgba(255, 255, 255, 1);
+            border-bottom-color: rgba(255, 255, 255, 0.6);
+        }
+        .nav-links {
+            margin-top: 50px;
+            padding-top: 30px;
+            border-top: 1px solid rgba(255, 255, 255, 0.1);
+            text-align: center;
+        }
+        .nav-links a {
+            display: inline-block;
+            margin: 0 15px;
+            padding: 8px 20px;
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 8px;
+            transition: all 0.3s ease;
+        }
+        .nav-links a:hover {
+            background: rgba(255, 255, 255, 0.1);
+            border-color: rgba(255, 255, 255, 0.2);
+            transform: translateY(-2px);
+        }
+        @media (max-width: 768px) {
+            .container {
+                padding: 40px 20px;
+                margin: 20px 10px;
+                border-radius: 16px;
+            }
+            .lang-switcher {
+                position: static;
+                margin-bottom: 20px;
+            }
+            h1 {
+                font-size: 2em;
+            }
+            h2 {
+                font-size: 1.5em;
+            }
+            h3 {
+                font-size: 1.2em;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <a href="/" class="home-link" style="display:inline-flex;align-items:center;gap:6px;color:rgba(255,255,255,0.55);text-decoration:none;font-size:14px;margin-bottom:16px;transition:color 0.3s;" onmouseover="this.style.color='rgba(255,255,255,0.95)'" onmouseout="this.style.color='rgba(255,255,255,0.55)'">&larr; Back to Home</a>
+        <div class="lang-switcher">
+            <a href="/terms-of-service.html">中文</a>
+            <a href="/terms-of-service-en.html" class="active">English</a>
+        </div>
+
+        <h1>Terms of Service</h1>
+        <p class="last-updated">Last Updated: January 2025</p>
+
+        <h2>1. Acceptance of Terms</h2>
+        <p>Welcome to LIEN Photography (hereinafter referred to as "this website"). By accessing or using this website, you agree to comply with these Terms of Service. If you do not agree to these terms, please do not use this website.</p>
+
+        <h2>2. Service Description</h2>
+        <p>LIEN Photography is a photography portfolio platform that provides the following services:</p>
+        <ul>
+            <li>Photography portfolio display and browsing</li>
+            <li>Photo upload and management features</li>
+            <li>AI-assisted photo classification</li>
+            <li>Contact form services</li>
+            <li>Other related features</li>
+        </ul>
+
+        <h2>3. User Eligibility</h2>
+        <p>To use this website's services, you must:</p>
+        <ul>
+            <li>Be at least 13 years old, or have parental or guardian consent</li>
+            <li>Have full civil capacity</li>
+            <li>Comply with all applicable laws and regulations</li>
+            <li>Provide true and accurate information</li>
+        </ul>
+
+        <h2>4. User Accounts</h2>
+        <h3>4.1 Account Registration</h3>
+        <p>This website uses Firebase anonymous authentication system. You do not need to provide personal information to use basic features, but some features may require account creation.</p>
+
+        <h3>4.2 Account Security</h3>
+        <p>You are responsible for:</p>
+        <ul>
+            <li>Maintaining the confidentiality of your account information</li>
+            <li>All activities under your account</li>
+            <li>Immediately notifying us of any unauthorized use</li>
+            <li>Ensuring logout to protect account security</li>
+        </ul>
+
+        <h2>5. User Conduct</h2>
+        <p>When using this website, you agree not to:</p>
+        <ul>
+            <li>Upload, post, or transmit any illegal, harmful, threatening, abusive, harassing, defamatory, vulgar, obscene, or otherwise objectionable content</li>
+            <li>Infringe on others' intellectual property rights, privacy rights, or other rights</li>
+            <li>Upload files containing viruses, malware, or other harmful code</li>
+            <li>Attempt to gain unauthorized access to this website or related systems</li>
+            <li>Interfere with or disrupt the normal operation of this website</li>
+            <li>Use automated tools (such as crawlers, robots) to access this website</li>
+            <li>Engage in any behavior that may damage the reputation of this website</li>
+        </ul>
+
+        <h2>6. Content and Intellectual Property</h2>
+        <h3>6.1 Your Content</h3>
+        <p>When you upload content to this website, you:</p>
+        <ul>
+            <li>Retain ownership of that content</li>
+            <li>Grant us the right to use, store, display, and process that content, limited to what is necessary to provide services</li>
+            <li>Warrant that you have the right to upload the content and that it does not infringe on any third-party rights</li>
+        </ul>
+
+        <h3>6.2 Website Content</h3>
+        <p>All content on this website, including but not limited to text, images, logos, designs, software, etc., is protected by intellectual property laws. Without authorization, you may not copy, modify, distribute, or use this content.</p>
+
+        <h2>7. AI Photo Classification Service</h2>
+        <p>This website provides AI-assisted photo classification features using Google Gemini API. Please note:</p>
+        <ul>
+            <li>AI classification results are for reference only and may not be completely accurate</li>
+            <li>We do not guarantee the accuracy of AI classification</li>
+            <li>You are responsible for reviewing and confirming classification results</li>
+            <li>Uploaded photos may be sent to Google Gemini API for processing</li>
+        </ul>
+
+        <h2>8. Service Availability</h2>
+        <p>We strive to ensure the normal operation of this website but do not guarantee:</p>
+        <ul>
+            <li>Service will not be interrupted or error-free</li>
+            <li>All features will function properly</li>
+            <li>Service will fully meet your needs</li>
+        </ul>
+        <p>We reserve the right to modify, suspend, or terminate services at any time without prior notice.</p>
+
+        <h2>9. Disclaimer</h2>
+        <div class="warning">
+            <p><strong>Important:</strong> This website is provided "as is" without any express or implied warranties. We are not responsible for:</p>
+        </div>
+        <ul>
+            <li>Service interruptions, delays, or errors</li>
+            <li>Data loss or corruption</li>
+            <li>Failures of third-party services (such as Firebase, Google Gemini)</li>
+            <li>Any direct or indirect losses caused by using or being unable to use this website</li>
+            <li>Accuracy of AI classification results</li>
+        </ul>
+
+        <h2>10. Limitation of Liability</h2>
+        <p>To the maximum extent permitted by law, we are not liable for any damages (including but not limited to direct, indirect, incidental, special, or consequential damages) caused by using or being unable to use this website.</p>
+
+        <h2>11. Third-Party Services</h2>
+        <p>This website uses the following third-party services:</p>
+        <ul>
+            <li><strong>Google Firebase:</strong> For data storage, authentication, and analytics</li>
+            <li><strong>Google Gemini API:</strong> For AI photo classification</li>
+            <li><strong>EmailJS:</strong> For email sending</li>
+        </ul>
+        <p>These services have their own terms of service and privacy policies. We are not responsible for the operation or issues of third-party services.</p>
+
+        <h2>12. Service Termination</h2>
+        <p>We reserve the right to terminate or suspend your account and services under the following circumstances:</p>
+        <ul>
+            <li>Violation of these Terms of Service</li>
+            <li>Long-term account inactivity</li>
+            <li>Legal requirements</li>
+            <li>Other circumstances we deem appropriate</li>
+        </ul>
+
+        <h2>13. Data Deletion</h2>
+        <p>When your account is terminated or you request data deletion, we will:</p>
+        <ul>
+            <li>Delete your uploaded photos and related data</li>
+            <li>Delete your account information</li>
+            <li>Retain data required by law</li>
+        </ul>
+        <p>Please note that some data may take time to be completely deleted and may remain in backups.</p>
+
+        <h2>14. Terms Changes</h2>
+        <p>We may update these Terms of Service from time to time. Significant changes will be notified through website announcements or other means. Continued use of this website indicates your acceptance of the updated terms.</p>
+
+        <h2>15. Applicable Law and Jurisdiction</h2>
+        <p>These Terms of Service are governed by the laws of the Republic of China. Any disputes shall be submitted to a court with jurisdiction for resolution.</p>
+
+        <h2>16. Severability</h2>
+        <p>If any provision of these Terms of Service is found to be invalid or unenforceable, the remaining provisions shall remain valid.</p>
+
+        <h2>17. Entire Agreement</h2>
+        <p>These Terms of Service constitute the entire agreement between you and us regarding the use of this website, superseding all prior agreements and understandings.</p>
+
+        <h2>18. Contact Us</h2>
+        <div class="contact-info">
+            <p>If you have any questions about these Terms of Service, please contact us through the following methods:</p>
+            <p><strong>Email:</strong>ian921030@gmail.com</p>
+            <p><strong>Phone:</strong>+886 966003288</p>
+            <p><strong>Website:</strong><a href="https://lien-gallery.web.app">https://lien-gallery.web.app</a></p>
+        </div>
+
+        <div class="nav-links">
+            <a href="/">Home</a>
+            <a href="/privacy-policy-en.html">Privacy Policy</a>
+            <a href="/cookie-policy-en.html">Cookie Policy</a>
+        </div>
+    </div>
+</body>
+</html>

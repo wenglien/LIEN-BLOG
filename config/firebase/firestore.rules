@@ -1,0 +1,48 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+    function isAdmin() {
+      return request.auth != null
+        && request.auth.token.email == 'ian921030@gmail.com';
+    }
+
+    match /photos/{photoId} {
+      allow read: if true;
+      allow write: if isAdmin();
+    }
+
+    match /categories/{categoryId} {
+      allow read: if true;
+      allow write: if isAdmin();
+    }
+
+    match /tags/{tagId} {
+      allow read: if true;
+      allow write: if isAdmin();
+    }
+
+    match /contacts/{contactId} {
+      allow read, write: if isAdmin();
+    }
+
+    match /comments/{commentId} {
+      allow read: if true;
+      allow create: if request.resource.data.keys().hasOnly(['photoId', 'author', 'content', 'createdAt', 'updatedAt'])
+        && request.resource.data.photoId is string
+        && request.resource.data.photoId.size() <= 128
+        && request.resource.data.author is string
+        && request.resource.data.author.size() > 0
+        && request.resource.data.author.size() <= 80
+        && request.resource.data.content is string
+        && request.resource.data.content.size() > 0
+        && request.resource.data.content.size() <= 1000
+        && request.resource.data.createdAt is timestamp
+        && request.resource.data.updatedAt is timestamp;
+      allow update, delete: if isAdmin();
+    }
+
+    match /admin/{document} {
+      allow read, write: if isAdmin();
+    }
+  }
+}

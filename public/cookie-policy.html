@@ -1,0 +1,383 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Cookie 政策 - LIEN Photography</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@100;200;300;400;500;600;700;900&family=Ma+Shan+Zheng&display=swap" rel="stylesheet">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        body {
+            font-family: 'Noto Sans TC', 'PingFang TC', 'Microsoft JhengHei', sans-serif;
+            line-height: 1.8;
+            color: rgba(255, 255, 255, 0.9);
+            background: #000;
+            min-height: 100vh;
+            position: relative;
+            overflow-x: hidden;
+        }
+        body::before {
+            content: '';
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background:
+                radial-gradient(circle at 20% 30%, rgba(255, 255, 255, 0.05) 0%, transparent 50%),
+                radial-gradient(circle at 80% 70%, rgba(255, 255, 255, 0.03) 0%, transparent 50%);
+            pointer-events: none;
+            z-index: 0;
+        }
+        .container {
+            position: relative;
+            z-index: 1;
+            max-width: 900px;
+            margin: 0 auto;
+            background: rgba(29, 29, 29, 0.4);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            padding: 60px 40px;
+            border-radius: 24px;
+            box-shadow:
+                0 20px 60px rgba(0, 0, 0, 0.5),
+                0 0 100px rgba(255, 255, 255, 0.05) inset;
+            margin: 40px 20px;
+        }
+        h1 {
+            color: rgba(255, 255, 255, 1);
+            font-family: 'Ma Shan Zheng', serif;
+            font-size: 3em;
+            margin-bottom: 15px;
+            padding-bottom: 20px;
+            border-bottom: 2px solid rgba(255, 255, 255, 0.2);
+            text-shadow: 0 4px 20px rgba(255, 255, 255, 0.1);
+        }
+        h2 {
+            color: rgba(255, 255, 255, 0.95);
+            font-size: 1.8em;
+            margin-top: 40px;
+            margin-bottom: 20px;
+            font-weight: 600;
+        }
+        h3 {
+            color: rgba(255, 255, 255, 0.85);
+            font-size: 1.3em;
+            margin-top: 25px;
+            margin-bottom: 12px;
+            font-weight: 500;
+        }
+        p {
+            margin-bottom: 18px;
+            text-align: justify;
+            color: rgba(255, 255, 255, 0.7);
+            line-height: 1.9;
+        }
+        ul, ol {
+            margin-left: 30px;
+            margin-bottom: 18px;
+        }
+        li {
+            margin-bottom: 10px;
+            color: rgba(255, 255, 255, 0.7);
+            line-height: 1.9;
+        }
+        strong {
+            color: rgba(255, 255, 255, 0.9);
+            font-weight: 600;
+        }
+        .last-updated {
+            color: rgba(255, 255, 255, 0.5);
+            font-size: 0.9em;
+            margin-bottom: 40px;
+            font-style: italic;
+        }
+        .contact-info {
+            background: rgba(255, 255, 255, 0.05);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            padding: 25px;
+            border-radius: 16px;
+            margin-top: 40px;
+        }
+        .contact-info p {
+            margin-bottom: 10px;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 25px 0;
+            background: rgba(255, 255, 255, 0.03);
+            border-radius: 12px;
+            overflow: hidden;
+        }
+        th, td {
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            padding: 15px;
+            text-align: left;
+        }
+        th {
+            background: rgba(255, 255, 255, 0.1);
+            color: rgba(255, 255, 255, 0.95);
+            font-weight: 600;
+        }
+        td {
+            color: rgba(255, 255, 255, 0.7);
+        }
+        tr:nth-child(even) {
+            background: rgba(255, 255, 255, 0.02);
+        }
+        .info-box {
+            background: rgba(33, 150, 243, 0.1);
+            border-left: 4px solid rgba(33, 150, 243, 0.5);
+            padding: 20px;
+            margin: 25px 0;
+            border-radius: 8px;
+        }
+        .info-box strong {
+            color: rgba(255, 255, 255, 0.95);
+        }
+        a {
+            color: rgba(255, 255, 255, 0.8);
+            text-decoration: none;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.3);
+            transition: all 0.3s ease;
+        }
+        a:hover {
+            color: rgba(255, 255, 255, 1);
+            border-bottom-color: rgba(255, 255, 255, 0.6);
+        }
+        .nav-links {
+            margin-top: 50px;
+            padding-top: 30px;
+            border-top: 1px solid rgba(255, 255, 255, 0.1);
+            text-align: center;
+        }
+        .nav-links a {
+            display: inline-block;
+            margin: 0 15px;
+            padding: 8px 20px;
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 8px;
+            transition: all 0.3s ease;
+        }
+        .nav-links a:hover {
+            background: rgba(255, 255, 255, 0.1);
+            border-color: rgba(255, 255, 255, 0.2);
+            transform: translateY(-2px);
+        }
+        .lang-switcher {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            display: flex;
+            gap: 10px;
+        }
+        .lang-switcher a {
+            padding: 8px 16px;
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 8px;
+            color: rgba(255, 255, 255, 0.7);
+            text-decoration: none;
+            transition: all 0.3s ease;
+            font-size: 0.9em;
+        }
+        .lang-switcher a:hover,
+        .lang-switcher a.active {
+            background: rgba(255, 255, 255, 0.1);
+            border-color: rgba(255, 255, 255, 0.2);
+            color: rgba(255, 255, 255, 1);
+        }
+        @media (max-width: 768px) {
+            .lang-switcher {
+                position: static;
+                margin-bottom: 20px;
+            }
+            .container {
+                padding: 40px 20px;
+                margin: 20px 10px;
+                border-radius: 16px;
+            }
+            h1 {
+                font-size: 2em;
+            }
+            h2 {
+                font-size: 1.5em;
+            }
+            h3 {
+                font-size: 1.2em;
+            }
+            table {
+                font-size: 0.9em;
+            }
+            th, td {
+                padding: 10px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <a href="/" class="home-link" style="display:inline-flex;align-items:center;gap:6px;color:rgba(255,255,255,0.55);text-decoration:none;font-size:14px;margin-bottom:16px;transition:color 0.3s;" onmouseover="this.style.color='rgba(255,255,255,0.95)'" onmouseout="this.style.color='rgba(255,255,255,0.55)'">&larr; 返回首頁</a>
+        <div class="lang-switcher">
+            <a href="/cookie-policy.html" class="active">中文</a>
+            <a href="/cookie-policy-en.html">English</a>
+        </div>
+
+        <h1>Cookie 政策</h1>
+        <p class="last-updated">最後更新日期：2025年1月</p>
+
+        <h2>1. 什麼是 Cookies？</h2>
+        <p>Cookies 是當您造訪網站時，網站儲存在您裝置（電腦、平板電腦或手機）上的小型文字檔案。Cookies 讓網站能夠記住您的動作和偏好，例如您的登入狀態、語言選擇、字體大小和其他顯示偏好，因此您不需要在每次返回網站或瀏覽不同頁面時重新輸入這些資訊。</p>
+
+        <h2>2. 我們如何使用 Cookies</h2>
+        <p>LIEN Photography 使用 Cookies 和類似技術來：</p>
+        <ul>
+            <li>確保網站正常運作</li>
+            <li>記住您的偏好和設定</li>
+            <li>改善使用者體驗</li>
+            <li>分析網站流量和使用情況</li>
+            <li>提供個人化內容</li>
+            <li>確保網站安全</li>
+        </ul>
+
+        <h2>3. 我們使用的 Cookies 類型</h2>
+
+        <h3>3.1 必要 Cookies</h3>
+        <p>這些 Cookies 對於網站的基本功能至關重要，無法關閉。它們通常只在您執行操作時設定，例如設定隱私偏好、登入或填寫表單。</p>
+        <div class="info-box">
+            <p><strong>範例：</strong>Firebase 認證 Cookies、會話管理 Cookies</p>
+        </div>
+
+        <h3>3.2 功能性 Cookies</h3>
+        <p>這些 Cookies 讓網站能夠記住您所做的選擇（如您的使用者名稱、語言或地區），並提供增強和個人化的功能。</p>
+        <div class="info-box">
+            <p><strong>範例：</strong>語言偏好、顯示設定、主題選擇</p>
+        </div>
+
+        <h3>3.3 分析 Cookies</h3>
+        <p>這些 Cookies 幫助我們了解訪客如何與網站互動，例如哪些頁面最受歡迎、訪客在網站上停留多長時間等。這些資訊有助於我們改善網站。</p>
+        <div class="info-box">
+            <p><strong>範例：</strong>Firebase Analytics Cookies、Google Analytics Cookies</p>
+        </div>
+
+        <h2>4. 第三方 Cookies</h2>
+        <p>本網站使用以下第三方服務，這些服務可能會設定自己的 Cookies：</p>
+
+        <table>
+            <thead>
+                <tr>
+                    <th>服務提供商</th>
+                    <th>用途</th>
+                    <th>更多資訊</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td>Google Firebase</td>
+                    <td>認證、資料儲存、分析</td>
+                    <td><a href="https://firebase.google.com/support/privacy" target="_blank">Firebase 隱私權政策</a></td>
+                </tr>
+                <tr>
+                    <td>Google Analytics</td>
+                    <td>網站流量分析</td>
+                    <td><a href="https://policies.google.com/privacy" target="_blank">Google 隱私權政策</a></td>
+                </tr>
+                <tr>
+                    <td>Google Gemini API</td>
+                    <td>AI 照片分類</td>
+                    <td><a href="https://policies.google.com/privacy" target="_blank">Google 隱私權政策</a></td>
+                </tr>
+            </tbody>
+        </table>
+
+        <h2>5. Cookies 詳細列表</h2>
+        <p>以下是我們網站可能使用的 Cookies 列表：</p>
+
+        <h3>5.1 Firebase 認證 Cookies</h3>
+        <ul>
+            <li><strong>名稱：</strong>各種 Firebase 認證相關 Cookies</li>
+            <li><strong>用途：</strong>維持您的登入狀態</li>
+            <li><strong>類型：</strong>必要 Cookies</li>
+            <li><strong>有效期：</strong>會話期間或更長（取決於設定）</li>
+        </ul>
+
+        <h3>5.2 Firebase Analytics Cookies</h3>
+        <ul>
+            <li><strong>名稱：</strong>_ga, _gid 等</li>
+            <li><strong>用途：</strong>追蹤和分析網站使用情況</li>
+            <li><strong>類型：</strong>分析 Cookies</li>
+            <li><strong>有效期：</strong>通常為 2 年</li>
+        </ul>
+
+        <h3>5.3 本地儲存（Local Storage）</h3>
+        <p>除了 Cookies，我們還可能使用瀏覽器的本地儲存來記住您的偏好和設定。</p>
+
+        <h2>6. 如何管理 Cookies</h2>
+        <p>您可以透過以下方式管理或刪除 Cookies：</p>
+
+        <h3>6.1 瀏覽器設定</h3>
+        <p>大多數瀏覽器允許您：</p>
+        <ul>
+            <li>查看您擁有的 Cookies 並刪除它們</li>
+            <li>封鎖第三方 Cookies</li>
+            <li>封鎖特定網站的 Cookies</li>
+            <li>在關閉瀏覽器時刪除所有 Cookies</li>
+            <li>封鎖所有 Cookies</li>
+        </ul>
+        <p>請注意，封鎖某些 Cookies 可能會影響網站的功能。</p>
+
+        <h3>6.2 瀏覽器說明</h3>
+        <ul>
+            <li><strong>Chrome：</strong>設定 > 隱私權和安全性 > Cookies 和其他網站資料</li>
+            <li><strong>Firefox：</strong>選項 > 隱私權與安全性 > Cookies 和網站資料</li>
+            <li><strong>Safari：</strong>偏好設定 > 隱私權 > Cookies 和網站資料</li>
+            <li><strong>Edge：</strong>設定 > Cookies 和網站權限 > Cookies 和網站資料</li>
+        </ul>
+
+        <h3>6.3 Google Analytics 退出</h3>
+        <p>如果您想退出 Google Analytics 追蹤，可以安裝 <a href="https://tools.google.com/dlpage/gaoptout" target="_blank">Google Analytics 退出瀏覽器附加元件</a>。</p>
+
+        <h2>7. 行動裝置上的 Cookies</h2>
+        <p>在行動裝置上，您也可以透過裝置設定管理 Cookies。請參考您的裝置製造商說明文件以獲取更多資訊。</p>
+
+        <h2>8. 其他追蹤技術</h2>
+        <p>除了 Cookies，我們還可能使用以下技術：</p>
+        <ul>
+            <li><strong>本地儲存（Local Storage）：</strong>在您的瀏覽器中儲存資料</li>
+            <li><strong>會話儲存（Session Storage）：</strong>在瀏覽器會話期間儲存資料</li>
+            <li><strong>像素標籤（Pixel Tags）：</strong>追蹤電子郵件開啟率</li>
+            <li><strong>網路信標（Web Beacons）：</strong>追蹤網站使用情況</li>
+        </ul>
+
+        <h2>9. 兒童隱私</h2>
+        <p>我們不會故意收集 13 歲以下兒童的個人資訊或使用追蹤技術。如果我們發現收集了兒童的資訊，我們會立即刪除。</p>
+
+        <h2>10. 政策變更</h2>
+        <p>我們可能會不時更新本 Cookie 政策。任何變更都會在本頁面上發布，並更新「最後更新日期」。我們建議您定期查看本政策以了解最新資訊。</p>
+
+        <h2>11. 聯絡我們</h2>
+        <div class="contact-info">
+            <p>如果您對本 Cookie 政策有任何疑問，請透過以下方式與我們聯繫：</p>
+            <p><strong>電子郵件：</strong>ian921030@gmail.com</p>
+            <p><strong>電話：</strong>+886 966003288</p>
+            <p><strong>網站：</strong><a href="https://lien-gallery.web.app">https://lien-gallery.web.app</a></p>
+        </div>
+
+        <div class="nav-links">
+            <a href="/">返回首頁</a>
+            <a href="/privacy-policy.html">隱私權政策</a>
+            <a href="/terms-of-service.html">服務條款</a>
+        </div>
+    </div>
+</body>
+</html>
