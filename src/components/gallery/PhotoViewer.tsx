@@ -6,27 +6,18 @@ import { ImageWithFallback } from '@/components/ui/ImageWithFallback';
 import { useI18n } from '@/i18n';
 import { addComment, subscribeToComments, Comment } from '@/services/commentService';
 import { localizePhoto } from '@/utils/photoLocalization';
+import { Photo } from '@/types/photo';
+import { photoUrl } from '@/services/photoViewing';
 
 interface PhotoViewerProps {
   isOpen: boolean;
   onClose: () => void;
-  photo: {
-    id: string | number;
-    title: string;
-    description: string;
-    image: string;
-    category: string;
-    date?: string;
-    location?: string;
-    camera?: string;
-    lens?: string;
-    settings?: string;
-  } | null;
+  photo: Photo | null;
   onNext?: () => void;
   onPrevious?: () => void;
   hasNext?: boolean;
   hasPrevious?: boolean;
-  onDownload?: (photo: any) => void;
+  onDownload: (photo: Photo) => void | Promise<void>;
   isDownloading?: boolean;
   isDownloaded?: boolean;
 }
@@ -214,59 +205,12 @@ export function PhotoViewer({
     }
   };
 
-  // Download original image
-  const handleDownload = async () => {
-    if (!photo) return;
-
-    try {
-      // Prioritize using original high-resolution image URL
-      const imageUrl = originalImageUrl || photo.image;
-
-      // Try to download via fetch (works for same-origin or CORS allowed images)
-      try {
-        const response = await fetch(imageUrl);
-        const blob = await response.blob();
-        const url = window.URL.createObjectURL(blob);
-        const link = document.createElement('a');
-        link.href = url;
-        link.download = `${displayPhoto.title || 'photo'}.jpg`;
-        document.body.appendChild(link);
-        link.click();
-        document.body.removeChild(link);
-        window.URL.revokeObjectURL(url);
-
-        // Call callback function (if provided)
-        if (onDownload) {
-          onDownload(photo);
-        }
-      } catch (fetchError) {
-        // If fetch fails (likely CORS issue), use direct download method
-        console.log('Fetch failed, using direct download:', fetchError);
-        const link = document.createElement('a');
-        link.href = imageUrl;
-        link.download = `${displayPhoto.title || 'photo'}.jpg`;
-        link.target = '_blank';
-        link.rel = 'noopener noreferrer';
-        document.body.appendChild(link);
-        link.click();
-        document.body.removeChild(link);
-
-        // Call callback function (if provided)
-        if (onDownload) {
-          onDownload(photo);
-        }
-      }
-    } catch (error) {
-      console.error('Download failed:', error);
-      // Last resort: open image in new tab
-      window.open(originalImageUrl || photo.image, '_blank');
-    }
-  };
+  const handleDownload = () => onDownload(photo);
 
   // Copy link to clipboard
   const handleCopyLink = async () => {
     try {
-      const url = window.location.href.split('#')[0] + `#photo-${photo.id}`;
+      const url = photoUrl(photo.id);
       await navigator.clipboard.writeText(url);
       setLinkCopied(true);
       setTimeout(() => setLinkCopied(false), 2000);
@@ -313,7 +257,7 @@ export function PhotoViewer({
     if (!photo) return;
 
     try {
-      const url = encodeURIComponent(window.location.href.split('#')[0] + `#photo-${photo.id}`);
+      const url = encodeURIComponent(photoUrl(photo.id));
       const title = encodeURIComponent(displayPhoto.title);
       // Detect if mobile device
       const isMobile = /iPhone|iPad|iPod|Android/i.test(navigator.userAgent);
@@ -684,8 +628,7 @@ export function PhotoViewer({
                 {/* Action buttons */}
                 <div className="flex flex-col sm:flex-row gap-3 sm:gap-4 pt-3 border-t border-white/15 relative z-10">
                   {/* Download button - Only shown on desktop */}
-                  {onDownload && (
-                    <div
+                  <div
                       className="flex flex-1 relative z-10"
                       onTouchStart={(e) => {
                         e.stopPropagation();
@@ -723,8 +666,7 @@ export function PhotoViewer({
                           </>
                         )}
                       </LiquidGlassButton>
-                    </div>
-                  )}
+                  </div>
 
                   {/* Share button - Shown on both mobile and desktop */}
                   <motion.div className="relative flex-1 z-20">

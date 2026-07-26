@@ -1,7 +1,7 @@
-import { PhotoCategory, ClassificationResult } from './aiImageClassification';
+import { ClassificationResult, PhotoCategory } from '@/types/photo';
 
 // Google Cloud Vision API Photography Classification Service
-export class VisionImageClassificationService {
+class VisionImageClassificationService {
   private apiEndpoint: string | null = null;
   private isReady = false;
 
@@ -140,6 +140,7 @@ export class VisionImageClassificationService {
       architecture: 0,
       landscape: 0,
       nature: 0,
+      creative: 0,
       street: 0,
       sports: 0,
       fashion: 0,
@@ -749,6 +750,7 @@ export class VisionImageClassificationService {
         architecture: 0,
         landscape: 0,
         nature: 0,
+        creative: 0,
         street: 0,
         sports: 0,
         fashion: 0,
@@ -852,58 +854,11 @@ export class VisionImageClassificationService {
     }
   }
 
-  // Batch classify multiple images
-  async classifyMultipleImages(imageElements: HTMLImageElement[]): Promise<ClassificationResult[]> {
-    if (!this.isReady || !this.apiEndpoint) {
-      throw new Error('Google Cloud Vision API proxy is not configured.');
-    }
-
-    const results: ClassificationResult[] = [];
-
-    for (let i = 0; i < imageElements.length; i++) {
-      const imageElement = imageElements[i];
-      if (!imageElement) {
-        console.warn(`[${i + 1}/${imageElements.length}] Skipping undefined image element`);
-        continue;
-      }
-      try {
-        console.log(`[${i + 1}/${imageElements.length}] Starting classification...`);
-        console.log(`Image dimensions: ${imageElement.naturalWidth}x${imageElement.naturalHeight}`);
-
-        const result = await this.classifyImage(imageElement);
-        console.log(`[${i + 1}/${imageElements.length}] Classification result:`, result.category, `(confidence: ${result.confidence})`);
-        results.push(result);
-
-        // Add delay to avoid API rate limiting
-        if (i < imageElements.length - 1) {
-          await new Promise(resolve => setTimeout(resolve, 500));
-        }
-      } catch (error) {
-        console.error(`[${i + 1}/${imageElements.length}] Failed to classify image:`, error);
-        console.error('Error details:', {
-          message: error instanceof Error ? error.message : String(error),
-          stack: error instanceof Error ? error.stack : undefined,
-          imageSize: imageElement ? `${imageElement.naturalWidth}x${imageElement.naturalHeight}` : 'unknown',
-        });
-
-        throw new Error(`Failed to classify image ${i + 1}: ${error instanceof Error ? error.message : String(error)}`);
-      }
-    }
-
-    return results;
-  }
-
   // Check if service is available
   isServiceReady(): boolean {
     return this.isReady;
   }
 
-  // Reinitialize service
-  async reinitialize(): Promise<void> {
-    this.isReady = false;
-      this.apiEndpoint = null;
-    await this.initializeVision();
-  }
 }
 
 // Create singleton instance

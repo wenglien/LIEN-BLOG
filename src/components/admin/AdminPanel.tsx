@@ -32,18 +32,15 @@ import {
   Folder
 } from 'lucide-react';
 import { LiquidGlassButton } from '@/components/common/LiquidGlassButton';
-import { aiImageClassificationService, ClassificationResult, PhotoCategory, PHOTO_CATEGORIES } from '@/services/aiImageClassification';
+import { aiImageClassificationService, photoFileKey } from '@/services/aiImageClassification';
+import { ClassificationResult, Photo, PhotoCategory, PHOTO_CATEGORIES } from '@/types/photo';
 import { useAuth } from '@/contexts/AuthContext';
 import {
-  uploadPhotoToStorage,
-  savePhotoToFirestore,
   getAllPhotos,
   updatePhotoInFirestore,
-  deletePhoto as deletePhotoFromFirebase,
-  PhotoData
+  deletePhoto as deletePhotoFromFirebase
 } from '@/services/photoService';
-import { ref, getDownloadURL } from 'firebase/storage';
-import { storage } from '@/config/firebase';
+import { publishPhotoFiles, validatePhotoFiles } from '@/services/photoIntake';
 import { useI18n } from '@/i18n';
 import { Input } from '@/components/ui/input';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
@@ -62,22 +59,7 @@ import { formatFileSize } from '@/utils/imageCompression';
 import { diagnoseFirebase, logDiagnostics, FirebaseDiagnostics } from '@/utils/firebaseDiagnostics';
 import { localizePhoto, localizePhotoCategory } from '@/utils/photoLocalization';
 
-interface PhotoItem {
-  id: string | number;
-  category: PhotoCategory | string;
-  title: string;
-  description: string;
-  image: string;
-  date: string;
-  location: string;
-  camera: string;
-  lens: string;
-  settings: string;
-  isAIClassified?: boolean;
-  aiConfidence?: number;
-}
-
-function getPhotoCompleteness(photo: PhotoItem) {
+function getPhotoCompleteness(photo: Photo) {
   const fields = [photo.title, photo.description, photo.location, photo.camera, photo.lens, photo.settings];
   const completed = fields.filter(value => Boolean(value && value.trim())).length;
   const placeholderTitle = /^(新作品|new work|untitled)/i.test(photo.title || '');
@@ -91,23 +73,23 @@ function getPhotoCompleteness(photo: PhotoItem) {
 interface AdminPanelProps {
   isOpen: boolean;
   onClose: () => void;
-  onPhotosUpdate: (photos: PhotoItem[]) => void;
-  existingPhotos: PhotoItem[];
+  onPhotosUpdate: (photos: Photo[]) => void;
+  existingPhotos: Photo[];
 }
 
 export function AdminPanel({ isOpen, onClose, onPhotosUpdate, existingPhotos }: AdminPanelProps) {
   const { t, lang } = useI18n();
   const getDisplayPhoto = useCallback(
-    (photo: PhotoItem) => localizePhoto(photo, lang, t),
+    (photo: Photo) => localizePhoto(photo, lang, t),
     [lang, t],
   );
   const { logout, isAuthenticated, firebaseUser } = useAuth();
-  const [photos, setPhotos] = useState<PhotoItem[]>(existingPhotos);
+  const [photos, setPhotos] = useState<Photo[]>(existingPhotos);
   const [isDragging, setIsDragging] = useState(false);
   const [isClassifying, setIsClassifying] = useState(false);
   const [selectedFiles, setSelectedFiles] = useState<File[]>([]);
   const [classificationResults, setClassificationResults] = useState<Map<string, ClassificationResult>>(new Map());
-  const [editingPhoto, setEditingPhoto] = useState<PhotoItem | null>(null);
+  const [editingPhoto, setEditingPhoto] = useState<Photo | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [uploadProgress, setUploadProgress] = useState<Map<string, number>>(new Map());
   const [isLoading, setIsLoading] = useState(false);
@@ -119,9 +101,9 @@ export function AdminPanel({ isOpen, onClose, onPhotosUpdate, existingPhotos }: 
   const [viewMode, setViewMode] = useState<'grid' | 'list'>('grid');
   const [selectedPhotoIds, setSelectedPhotoIds] = useState<Set<string | number>>(new Set());
   const [deleteConfirmOpen, setDeleteConfirmOpen] = useState(false);
-  const [photoToDelete, setPhotoToDelete] = useState<PhotoItem | null>(null);
-  const [previewPhoto, setPreviewPhoto] = useState<PhotoItem | null>(null);
-  const [inspectorPhoto, setInspectorPhoto] = useState<PhotoItem | null>(null);
+  const [photoToDelete, setPhotoToDelete] = useState<Photo | null>(null);
+  const [previewPhoto, setPreviewPhoto] = useState<Photo | null>(null);
+  const [inspectorPhoto, setInspectorPhoto] = useState<Photo | null>(null);
   const [successMessage, setSuccessMessage] = useState<string | null>(null);
   const [activeTab, setActiveTab] = useState<'manage' | 'upload'>('manage');
   const [showCategoryMenu, setShowCategoryMenu] = useState(false);
@@ -182,29 +164,15 @@ export function AdminPanel({ isOpen, onClose, onPhotosUpdate, existingPhotos }: 
     try {
       setIsLoading(true);
       const firebasePhotos = await getAllPhotos();
-      const formattedPhotos: PhotoItem[] = firebasePhotos.map(photo => ({
-        id: photo.id || '',
-        category: photo.category as PhotoCategory,
-        title: photo.title,
-        description: photo.description,
-        image: photo.imageUrl,
-        date: photo.date,
-        location: photo.location,
-        camera: photo.camera,
-        lens: photo.lens,
-        settings: photo.settings,
-        isAIClassified: photo.isAIClassified,
-        aiConfidence: photo.aiConfidence
-      }));
-      setPhotos(formattedPhotos);
-      onPhotosUpdate(formattedPhotos);
+      setPhotos(firebasePhotos);
+      onPhotosUpdate(firebasePhotos);
     } catch (err) {
       console.error('Load photos failed:', err);
       setError(t('error_load_photos'));
     } finally {
       setIsLoading(false);
     }
-  }, [onPhotosUpdate]);
+  }, [onPhotosUpdate, t]);
 
   // Run Firebase diagnostics
   const runDiagnostics = useCallback(async () => {
@@ -227,7 +195,7 @@ export function AdminPanel({ isOpen, onClose, onPhotosUpdate, existingPhotos }: 
     } finally {
       setIsDiagnosing(false);
     }
-  }, []);
+  }, [t]);
 
   // Fetch photos when component loads
   React.useEffect(() => {
@@ -238,17 +206,14 @@ export function AdminPanel({ isOpen, onClose, onPhotosUpdate, existingPhotos }: 
 
   // Handle file selection
   const handleFileSelect = useCallback((files: FileList) => {
-    const validFiles = Array.from(files).filter(file => {
-      if (!file.type.startsWith('image/')) {
-        setError(t('admin_file_invalid_format', { name: file.name }));
-        return false;
-      }
-      if (file.size > 50 * 1024 * 1024) {
-        setError(t('admin_file_too_large', { name: file.name }));
-        return false;
-      }
-      return true;
-    });
+    const { accepted: validFiles, rejected } = validatePhotoFiles(Array.from(files));
+    const firstRejected = rejected[0];
+    if (firstRejected) {
+      setError(t(
+        firstRejected.reason === 'format' ? 'admin_file_invalid_format' : 'admin_file_too_large',
+        { name: firstRejected.file.name },
+      ));
+    }
 
     if (validFiles.length === 0) return;
 
@@ -256,7 +221,7 @@ export function AdminPanel({ isOpen, onClose, onPhotosUpdate, existingPhotos }: 
     setSelectedFiles(prev => [...prev, ...validFiles]);
     // Trigger scroll recalculation
     forceScrollRecalculation();
-  }, [forceScrollRecalculation]);
+  }, [forceScrollRecalculation, t]);
 
   // Handle drag and drop
   const handleDragOver = useCallback((e: React.DragEvent) => {
@@ -298,71 +263,18 @@ export function AdminPanel({ isOpen, onClose, onPhotosUpdate, existingPhotos }: 
 
     setIsClassifying(true);
     setError(null);
-    const results = new Map<string, ClassificationResult>();
+    let results = new Map<string, ClassificationResult>();
 
     try {
       console.log(`Start analyzing ${selectedFiles.length} images using ${aiImageClassificationService.getAvailableServices().join(' + ')}`);
-
-      // Prepare image element array
-      const imageElements: HTMLImageElement[] = [];
-      const fileIds: string[] = [];
-
-      // Batch create image elements
-      for (let i = 0; i < selectedFiles.length; i++) {
-        const file = selectedFiles[i];
-        if (!file) continue;
-
-        const fileId = `${file.name}-${file.size}`;
-        fileIds.push(fileId);
-
-        try {
-          const imageElement = new Image();
-          imageElement.crossOrigin = 'anonymous';
-
-          await new Promise<void>((resolve, reject) => {
-            imageElement.onload = () => resolve();
-            imageElement.onerror = reject;
-            const objectUrl = URL.createObjectURL(file);
-            imageElement.src = objectUrl;
-          });
-
-          imageElements.push(imageElement);
-
-          // Update preparation progress
-          setUploadProgress(prev => new Map(prev).set(fileId, (i + 1) / selectedFiles.length * 30));
-        } catch (err) {
-          console.error(`Failed to load image ${file.name}:`, err);
-          // Add empty placeholder
-          imageElements.push(null as any);
-        }
-      }
-
-      // Use optimized batch classification
-      const classificationResults = await aiImageClassificationService.classifyMultipleImages(
-        imageElements.filter(img => img !== null)
-      );
-
-      // Handle classification results
-      classificationResults.forEach((result, index) => {
-        const fileId = fileIds[index];
-        if (fileId) {
-          results.set(fileId, result);
-          // Update completion progress
-          setUploadProgress(prev => new Map(prev).set(fileId, 100));
-        }
-      });
-
-      // Clean up image URLs
-      imageElements.forEach(img => {
-        if (img && img.src.startsWith('blob:')) {
-          URL.revokeObjectURL(img.src);
-        }
+      results = await aiImageClassificationService.classifyFiles(selectedFiles, (file, progress) => {
+        setUploadProgress(previous => new Map(previous).set(photoFileKey(file), progress));
       });
 
       setClassificationResults(results);
 
       // Show classification completion summary
-      const successCount = classificationResults.filter(r => r.confidence > 0.5).length;
+      const successCount = [...results.values()].filter(result => result.confidence > 0.5).length;
       console.log(`Batch classification complete: ${successCount}/${selectedFiles.length} images classified successfully`);
 
       setTimeout(() => {
@@ -402,105 +314,32 @@ export function AdminPanel({ isOpen, onClose, onPhotosUpdate, existingPhotos }: 
       setIsLoading(true);
       setError(null);
 
-      // Initialize progress for all files
-      const initialProgress = new Map<string, number>();
-      selectedFiles.forEach(file => {
-        const fileId = `${file.name}-${file.size}`;
-        initialProgress.set(fileId, 0);
+      setUploadProgress(new Map(selectedFiles.map(file => [photoFileKey(file), 0])));
+      const { photos: newPhotos, failures } = await publishPhotoFiles({
+        files: selectedFiles,
+        classifications: activeResults,
+        onProgress: (file, progress) => {
+          setUploadProgress(previous => new Map(previous).set(photoFileKey(file), progress));
+        },
+        buildPhoto: (file, result, image) => ({
+          category: result.category,
+          title: `${t('admin_new_work')} - ${file.name.split('.')[0]}`,
+          description: t('admin_ai_classified_desc', { category: localizePhotoCategory(result.category, t) }),
+          image,
+          date: new Date().toLocaleDateString(lang === 'zh' ? 'zh-TW' : 'en-US', { year: 'numeric', month: 'long' }),
+          location: t('admin_edit_location'),
+          camera: t('admin_edit_camera'),
+          lens: t('admin_edit_lens'),
+          settings: t('admin_edit_settings'),
+          isAIClassified: activeResults.has(photoFileKey(file)),
+          aiConfidence: result.confidence,
+        }),
       });
-      setUploadProgress(initialProgress);
 
-      const newPhotos: PhotoItem[] = [];
-
-      // Detect mobile device and adjust settings accordingly
-      const isMobile = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
-      const MAX_CONCURRENT_UPLOADS = isMobile ? 1 : 2; // More conservative on mobile
-      const PROCESSING_DELAY = isMobile ? 300 : 200; // Longer delay on mobile to prevent overheating
-
-      // Process files in batches with concurrency control
-      const processFile = async (file: File, index: number): Promise<void> => {
-        const fileId = `${file.name}-${file.size}`;
-        const result = activeResults.get(fileId) || {
-          category: 'creative' as PhotoCategory,
-          confidence: 0.5,
-          allPredictions: [{ category: 'creative' as PhotoCategory, confidence: 0.5 }]
-        };
-
-        try {
-          // Add delay between files to prevent CPU overheating
-          if (index > 0) {
-            await new Promise(resolve => setTimeout(resolve, PROCESSING_DELAY));
-          }
-
-          // Upload photo to Firebase Storage (with progress tracking)
-          const imageUrl = await uploadPhotoToStorage(file, (progress) => {
-            // Update upload progress
-            setUploadProgress(prev => new Map(prev).set(fileId, progress));
-          });
-
-          // Prepare photo data
-          const photoData: Omit<PhotoData, 'id'> = {
-            category: result.category,
-            title: `${t('admin_new_work')} - ${file.name.split('.')[0]}`,
-            description: result ?
-              t('admin_ai_classified_desc', { category: localizePhotoCategory(result.category, t) }) :
-              t('admin_new_upload_desc'),
-            imageUrl: imageUrl,
-            date: new Date().toLocaleDateString(lang === 'zh' ? 'zh-TW' : 'en-US', { year: 'numeric', month: 'long' }),
-            location: t('admin_edit_location'),
-            camera: t('admin_edit_camera'),
-            lens: t('admin_edit_lens'),
-            settings: t('admin_edit_settings'),
-            isAIClassified: activeResults.has(fileId),
-            aiConfidence: result.confidence
-          };
-
-          // Save to Firestore
-          const photoId = await savePhotoToFirestore(photoData);
-
-          // Add to local state
-          newPhotos.push({
-            id: photoId,
-            category: photoData.category as PhotoCategory,
-            title: photoData.title,
-            description: photoData.description,
-            image: imageUrl,
-            date: photoData.date,
-            location: photoData.location,
-            camera: photoData.camera,
-            lens: photoData.lens,
-            settings: photoData.settings,
-            isAIClassified: photoData.isAIClassified,
-            aiConfidence: photoData.aiConfidence
-          });
-        } catch (uploadError: any) {
-          console.error(`Failed to upload file ${file.name}:`, uploadError);
-          const errorMsg = uploadError?.message || `Upload ${file.name} failed`;
-          setError(`${errorMsg}. ${t('admin_upload_firebase_error')}`);
-        }
-      };
-
-      // Process files with concurrency control
-      const processBatch = async (files: File[], startIndex: number): Promise<void> => {
-        const batch = files.slice(startIndex, startIndex + MAX_CONCURRENT_UPLOADS);
-        if (batch.length === 0) return;
-
-        // Process batch concurrently
-        await Promise.all(
-          batch.map((file, batchIndex) =>
-            processFile(file, startIndex + batchIndex)
-          )
-        );
-
-        // Process next batch after delay
-        if (startIndex + MAX_CONCURRENT_UPLOADS < files.length) {
-          await new Promise(resolve => setTimeout(resolve, PROCESSING_DELAY));
-          await processBatch(files, startIndex + MAX_CONCURRENT_UPLOADS);
-        }
-      };
-
-      // Start processing from first file
-      await processBatch(selectedFiles, 0);
+      if (failures.length > 0) {
+        const firstError = failures[0]?.error;
+        setError(`${firstError instanceof Error ? firstError.message : t('error_upload_photos')}. ${t('admin_upload_firebase_error')}`);
+      }
 
       // Reload all photos
       await loadPhotos();
@@ -528,7 +367,7 @@ export function AdminPanel({ isOpen, onClose, onPhotosUpdate, existingPhotos }: 
     } finally {
       setIsLoading(false);
     }
-  }, [selectedFiles, classificationResults, startBatchClassification, loadPhotos, isAuthenticated, logout, onClose]);
+  }, [selectedFiles, classificationResults, startBatchClassification, loadPhotos, isAuthenticated, logout, onClose, lang, t]);
 
 
   // Save edits
@@ -585,7 +424,7 @@ export function AdminPanel({ isOpen, onClose, onPhotosUpdate, existingPhotos }: 
   }, [editingPhoto, photos, t]);
 
   // Delete photo
-  const deletePhoto = useCallback(async (photo: PhotoItem) => {
+  const deletePhoto = useCallback(async (photo: Photo) => {
     // Check authentication status
     if (!isAuthenticated) {
       setError(t('admin_need_login_delete'));
@@ -725,170 +564,40 @@ export function AdminPanel({ isOpen, onClose, onPhotosUpdate, existingPhotos }: 
     try {
       console.log(`開始對 ${unclassifiedPhotos.length} 張未分類照片進行 AI 分類...`);
 
-      // Load images from URLs
-      const imageElements: HTMLImageElement[] = [];
-      const photoIds: string[] = [];
-      const photoMap = new Map<string, PhotoItem>(); // Map to track photo data
+      const classificationResults = await aiImageClassificationService.classifyPhotos(
+        unclassifiedPhotos,
+        (photo, progress) => setUploadProgress(previous => new Map(previous).set(String(photo.id), progress / 2)),
+      );
 
-      for (let i = 0; i < unclassifiedPhotos.length; i++) {
-        const photo = unclassifiedPhotos[i];
-        if (!photo || !photo.image) {
-          console.warn(`Photo ${photo?.id ?? i} has no image URL`);
-          continue;
-        }
-
-        try {
-          let imageUrl = photo.image;
-
-          // Try to get a fresh download URL from Firebase Storage if the URL is from Firebase Storage
-          if (photo.image.includes('firebasestorage.googleapis.com') && storage) {
-            try {
-              // Extract the file path from the URL
-              const url = new URL(photo.image);
-              const pathMatch = url.pathname.match(/\/o\/(.+)$/);
-
-              if (pathMatch && pathMatch[1]) {
-                const filePath = decodeURIComponent(pathMatch[1]);
-                const imageRef = ref(storage, filePath);
-                // Get a fresh download URL with proper CORS headers
-                imageUrl = await getDownloadURL(imageRef);
-                console.log(`Got fresh download URL for photo ${photo.id}`);
-              }
-            } catch (urlError) {
-              console.warn(`Failed to get fresh URL for photo ${photo.id}, using original URL:`, urlError);
-              // Continue with original URL
-            }
-          }
-
-          // Try loading with CORS first
-          let imageElement = new Image();
-          imageElement.crossOrigin = 'anonymous';
-
-          try {
-            await new Promise<void>((resolve, reject) => {
-              const timeout = setTimeout(() => {
-                reject(new Error('Image load timeout'));
-              }, 30000);
-
-              imageElement.onload = () => {
-                clearTimeout(timeout);
-                resolve();
-              };
-              imageElement.onerror = () => {
-                clearTimeout(timeout);
-                reject(new Error('CORS load failed'));
-              };
-              imageElement.src = imageUrl;
-            });
-          } catch (corsError) {
-            // If CORS fails, try without CORS
-            console.warn(`CORS load failed for photo ${photo.id}, trying without CORS...`);
-            imageElement = new Image();
-            // Don't set crossOrigin for fallback
-
-            await new Promise<void>((resolve, reject) => {
-              const timeout = setTimeout(() => {
-                reject(new Error('Image load timeout'));
-              }, 30000);
-
-              imageElement.onload = () => {
-                clearTimeout(timeout);
-                resolve();
-              };
-              imageElement.onerror = (err) => {
-                clearTimeout(timeout);
-                console.error(`Failed to load image for photo ${photo.id}:`, photo.image, err);
-                reject(new Error(`Failed to load image: ${photo.image}`));
-              };
-              imageElement.src = imageUrl;
-            });
-          }
-
-          imageElements.push(imageElement);
-          photoIds.push(String(photo.id));
-          photoMap.set(String(photo.id), photo);
-
-          // Update progress
-          setUploadProgress(prev => new Map(prev).set(String(photo.id), ((i + 1) / unclassifiedPhotos.length) * 50));
-        } catch (err) {
-          console.error(`Failed to load image for photo ${photo.id}:`, err);
-          // Continue with other photos
-        }
-      }
-
-      if (imageElements.length === 0) {
+      if (classificationResults.size === 0) {
         setError(t('admin_ai_classification_error'));
-        setIsClassifying(false);
         return;
-      }
-
-      console.log(`成功載入 ${imageElements.length} 張照片，開始 AI 分類...`);
-      console.log('AI 服務狀態:', aiImageClassificationService.isReady());
-      console.log('可用服務:', aiImageClassificationService.getAvailableServices());
-
-      if (!aiImageClassificationService.isReady()) {
-        throw new Error('AI 服務未就緒。請設定安全的 Vision API 後端代理（VITE_VISION_API_URL）。');
-      }
-
-      // Perform AI classification
-      let classificationResults: ClassificationResult[];
-      try {
-        classificationResults = await aiImageClassificationService.classifyMultipleImages(imageElements);
-        console.log(`AI 分類完成，獲得 ${classificationResults.length} 個結果`);
-      } catch (classificationError) {
-        console.error('AI 分類過程出錯:', classificationError);
-        throw new Error(`AI 分類失敗: ${classificationError instanceof Error ? classificationError.message : String(classificationError)}`);
-      }
-
-      if (classificationResults.length !== imageElements.length) {
-        console.warn(`分類結果數量 (${classificationResults.length}) 與圖片數量 (${imageElements.length}) 不匹配`);
       }
 
       // Update photos in Firestore
       let successCount = 0;
       let failCount = 0;
 
-      for (let i = 0; i < classificationResults.length && i < photoIds.length; i++) {
-        const result = classificationResults[i];
-        const photoId = photoIds[i];
-        if (!result || !photoId) {
+      for (const [photoId, result] of classificationResults) {
+        const photo = unclassifiedPhotos.find(candidate => String(candidate.id) === photoId);
+        if (!photo) {
           failCount++;
           continue;
         }
-        const photo = photoMap.get(photoId);
 
-        if (photo && result && result.category) {
-          try {
-            // Ensure category is a valid string
-            const category = (result.category && typeof result.category === 'string' && result.category.trim() !== '')
-              ? result.category.trim()
-              : null;
-
-            if (!category) {
-              console.warn(`Invalid category for photo ${photoId}:`, result.category);
-              failCount++;
-              continue;
-            }
-
-            await updatePhotoInFirestore(photoId, {
-              category: category,
-              isAIClassified: true,
-              aiConfidence: result.confidence || 0.5,
-              description: result.confidence && result.confidence > 0.5
-                ? `${photo.description || ''} [${t('admin_ai_classification_note', { category: localizePhotoCategory(category, t) })}]`.trim()
-                : photo.description
-            });
-            successCount++;
-            console.log(`成功更新照片 ${photoId} 的分類為: ${result.category}`);
-
-            // Update progress
-            setUploadProgress(prev => new Map(prev).set(photoId, 50 + ((i + 1) / classificationResults.length) * 50));
-          } catch (err) {
-            console.error(`Failed to update photo ${photoId}:`, err);
-            failCount++;
-          }
-        } else {
-          console.warn(`照片 ${photoId} 的分類結果無效:`, result);
+        try {
+          await updatePhotoInFirestore(photoId, {
+            category: result.category,
+            isAIClassified: true,
+            aiConfidence: result.confidence,
+            description: result.confidence > 0.5
+              ? `${photo.description} [${t('admin_ai_classification_note', { category: localizePhotoCategory(result.category, t) })}]`.trim()
+              : photo.description,
+          });
+          successCount++;
+          setUploadProgress(previous => new Map(previous).set(photoId, 50 + (successCount / classificationResults.size) * 50));
+        } catch (error) {
+          console.error(`Failed to update photo ${photoId}:`, error);
           failCount++;
         }
       }
@@ -918,55 +627,31 @@ export function AdminPanel({ isOpen, onClose, onPhotosUpdate, existingPhotos }: 
   }, [photos, isAuthenticated, logout, onClose, loadPhotos, t]);
 
   // Shared: classify a specific list of photos via AI and update Firestore
-  const classifyPhotosById = useCallback(async (photosToClassify: PhotoItem[]) => {
+  const classifyPhotosById = useCallback(async (photosToClassify: Photo[]) => {
     if (photosToClassify.length === 0) return;
 
     setIsClassifying(true);
     setError(null);
 
     try {
-      const imageElements: HTMLImageElement[] = [];
-      const photoIds: string[] = [];
-
-      for (const photo of photosToClassify) {
-        if (!photo?.image) continue;
-        try {
-          const imageElement = new Image();
-          imageElement.crossOrigin = 'anonymous';
-          await new Promise<void>((resolve, reject) => {
-            imageElement.onload = () => resolve();
-            imageElement.onerror = () => reject(new Error(`Failed to load: ${photo.image}`));
-            imageElement.src = photo.image;
-          });
-          imageElements.push(imageElement);
-          photoIds.push(String(photo.id));
-        } catch (err) {
-          console.error(`Failed to load image for photo ${photo.id}:`, err);
-        }
-      }
-
-      if (imageElements.length === 0) {
+      const results = await aiImageClassificationService.classifyPhotos(photosToClassify);
+      if (results.size === 0) {
         setError(t('admin_ai_classification_error'));
         return;
       }
 
-      const results = await aiImageClassificationService.classifyMultipleImages(imageElements);
       let successCount = 0;
 
-      for (let i = 0; i < results.length; i++) {
-        const result = results[i];
-        const photoId = photoIds[i];
-        if (result && photoId) {
-          try {
-            await updatePhotoInFirestore(photoId, {
-              category: result.category,
-              isAIClassified: true,
-              aiConfidence: result.confidence
-            });
-            successCount++;
-          } catch (err) {
-            console.error(`Failed to update photo ${photoId}:`, err);
-          }
+      for (const [photoId, result] of results) {
+        try {
+          await updatePhotoInFirestore(photoId, {
+            category: result.category,
+            isAIClassified: true,
+            aiConfidence: result.confidence,
+          });
+          successCount++;
+        } catch (error) {
+          console.error(`Failed to update photo ${photoId}:`, error);
         }
       }
 

@@ -33,46 +33,39 @@ export function Footer() {
 
       <div className="art-footer-inner">
         <motion.div
-          className="art-footer-heading"
+          className="art-footer-grid"
           initial={{ opacity: 0, y: 36 }}
           whileInView={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.8, ease: [0.22, 1, 0.36, 1] }}
-          viewport={{ once: true, amount: 0.25 }}
+          viewport={{ once: true, amount: 0.12 }}
         >
-          <div className="art-footer-heading-meta">
-            <span>LIEN · PHOTOGRAPHY</span>
-            <span>TAIWAN — {currentYear}</span>
-          </div>
-
-          <div className="art-footer-brand-row">
+          <section className="art-footer-brand-panel">
+            <div className="art-footer-heading-meta">
+              <span>LIEN · PHOTOGRAPHY</span>
+              <span>TAIWAN — {currentYear}</span>
+            </div>
             <div className="art-footer-brand-copy">
               <p className="art-footer-kicker">PHOTOGRAPHY NOTES</p>
+              <p className="art-footer-brand-mark" aria-hidden="true">LIEN</p>
               <p className="art-footer-intro">{t('footer_brand_intro')}</p>
             </div>
+          </section>
 
-            <motion.a
-              href="mailto:ian921030@gmail.com"
-              className="art-footer-contact-cta"
-              whileHover={{ scale: 1.025 }}
-              whileTap={{ scale: 0.98 }}
-            >
-              <span>
-                <small>{t('cta_contact')}</small>
-                <strong>ian921030@gmail.com</strong>
-              </span>
-              <ArrowUpRight aria-hidden="true" />
-            </motion.a>
-          </div>
-        </motion.div>
+          <motion.a
+            href="mailto:ian921030@gmail.com"
+            className="art-footer-contact-cta"
+            whileHover={{ y: -4 }}
+            whileTap={{ scale: 0.99 }}
+          >
+            <span>
+              <small>{t('cta_contact')}</small>
+              <strong>ian921030@gmail.com</strong>
+            </span>
+            <ArrowUpRight aria-hidden="true" />
+          </motion.a>
 
-        <motion.div
-          className="art-footer-directory"
-          initial={{ opacity: 0 }}
-          whileInView={{ opacity: 1 }}
-          transition={{ duration: 0.75, delay: 0.12 }}
-          viewport={{ once: true, amount: 0.25 }}
-        >
           <nav className="art-footer-nav" aria-label={t('quick_links')}>
+            <p className="art-footer-panel-label">DIRECTORY</p>
             {quickLinks.map((link, index) => (
               <a
                 key={link.nameKey}
@@ -89,30 +82,33 @@ export function Footer() {
             ))}
           </nav>
 
-          <div className="art-footer-contact-list">
-            <a href="tel:+886966003288">
-              <Phone aria-hidden="true" />
-              <span>+886 966 003 288</span>
-            </a>
-            <span className="art-footer-location">TAIWAN</span>
-          </div>
+          <section className="art-footer-connect-panel">
+            <p className="art-footer-panel-label">STAY CONNECTED</p>
+            <div className="art-footer-contact-list">
+              <a href="tel:+886966003288">
+                <Phone aria-hidden="true" />
+                <span>+886 966 003 288</span>
+              </a>
+              <span className="art-footer-location">TAIWAN · AVAILABLE WORLDWIDE</span>
+            </div>
 
-          <div className="art-footer-socials" aria-label="Social media">
-            {socialLinks.map((social) => (
-              <motion.a
-                key={social.label}
-                href={social.href}
-                target={social.external ? '_blank' : undefined}
-                rel={social.external ? 'noopener noreferrer' : undefined}
-                aria-label={social.label}
-                whileHover={{ y: -3 }}
-                whileTap={{ scale: 0.94 }}
-              >
-                <social.icon aria-hidden="true" />
-                <span>{social.label}</span>
-              </motion.a>
-            ))}
-          </div>
+            <div className="art-footer-socials" aria-label="Social media">
+              {socialLinks.map((social) => (
+                <motion.a
+                  key={social.label}
+                  href={social.href}
+                  target={social.external ? '_blank' : undefined}
+                  rel={social.external ? 'noopener noreferrer' : undefined}
+                  aria-label={social.label}
+                  whileHover={{ y: -3 }}
+                  whileTap={{ scale: 0.94 }}
+                >
+                  <social.icon aria-hidden="true" />
+                  <span>{social.label}</span>
+                </motion.a>
+              ))}
+            </div>
+          </section>
         </motion.div>
 
         <div className="art-footer-baseline">

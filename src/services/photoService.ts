@@ -17,22 +17,23 @@ import {
 } from 'firebase/firestore';
 import { storage, db, auth } from '../config/firebase';
 import { compressImage, blobToFile, formatFileSize } from '../utils/imageCompression';
+import { NewPhoto, normalizePhotoCategory, Photo } from '@/types/photo';
 
-export interface PhotoData {
-  id?: string;
-  category: string;
-  title: string;
-  description: string;
-  imageUrl: string;
-  date: string;
-  location: string;
-  camera: string;
-  lens: string;
-  settings: string;
-  isAIClassified?: boolean;
-  aiConfidence?: number;
-  createdAt?: Timestamp;
-  updatedAt?: Timestamp;
+function toPhoto(id: string, data: Record<string, unknown>): Photo {
+  return {
+    id,
+    category: normalizePhotoCategory(data.category),
+    title: typeof data.title === 'string' ? data.title : '',
+    description: typeof data.description === 'string' ? data.description.trim() : '',
+    image: typeof data.imageUrl === 'string' ? data.imageUrl : '',
+    date: typeof data.date === 'string' ? data.date : new Date().toISOString().slice(0, 10),
+    location: typeof data.location === 'string' ? data.location : '',
+    camera: typeof data.camera === 'string' ? data.camera : '',
+    lens: typeof data.lens === 'string' ? data.lens : '',
+    settings: typeof data.settings === 'string' ? data.settings : '',
+    isAIClassified: data.isAIClassified === true,
+    aiConfidence: typeof data.aiConfidence === 'number' ? data.aiConfidence : 0,
+  };
 }
 
 // Upload photo to Firebase Storage
@@ -194,7 +195,7 @@ export async function uploadPhotoToStorage(file: File, onProgress?: (progress: n
 }
 
 // Save photo data to Firestore
-export async function savePhotoToFirestore(photoData: Omit<PhotoData, 'id'>): Promise<string> {
+export async function savePhotoToFirestore(photo: NewPhoto): Promise<string> {
   try {
     // Check Firestore config
     if (!db) {
@@ -204,12 +205,22 @@ export async function savePhotoToFirestore(photoData: Omit<PhotoData, 'id'>): Pr
     }
 
     // Validate required fields
-    if (!photoData.imageUrl) {
+    if (!photo.image) {
       throw new Error('Photo URL cannot be empty');
     }
 
     const docRef = await addDoc(collection(db, 'photos'), {
-      ...photoData,
+      category: photo.category,
+      title: photo.title,
+      description: photo.description,
+      imageUrl: photo.image,
+      date: photo.date,
+      location: photo.location,
+      camera: photo.camera,
+      lens: photo.lens,
+      settings: photo.settings,
+      isAIClassified: photo.isAIClassified ?? false,
+      aiConfidence: photo.aiConfidence ?? 0,
       createdAt: Timestamp.now(),
       updatedAt: Timestamp.now()
     });
@@ -235,7 +246,7 @@ export async function savePhotoToFirestore(photoData: Omit<PhotoData, 'id'>): Pr
 }
 
 // Get all photos from Firestore
-export async function getAllPhotos(): Promise<PhotoData[]> {
+export async function getAllPhotos(): Promise<Photo[]> {
   try {
     // Check if Firestore is initialized
     if (!db) {
@@ -247,35 +258,10 @@ export async function getAllPhotos(): Promise<PhotoData[]> {
     const q = query(photosRef, orderBy('createdAt', 'desc'));
     const querySnapshot = await getDocs(q);
 
-    const photos: PhotoData[] = [];
+    const photos: Photo[] = [];
     querySnapshot.forEach((doc) => {
       const data = doc.data();
-      // Ensure category is a valid string, not undefined or null
-      const category = (data.category && typeof data.category === 'string' && data.category.trim() !== '')
-        ? data.category.trim()
-        : 'creative';
-
-      // Ensure description is a valid string, not undefined or null
-      const description = (data.description && typeof data.description === 'string')
-        ? data.description.trim()
-        : '';
-
-      photos.push({
-        id: doc.id,
-        category: category,
-        title: data.title || '',
-        description: description,
-        imageUrl: data.imageUrl || '',
-        date: data.date || new Date().toISOString().slice(0, 10),
-        location: data.location || '',
-        camera: data.camera || '',
-        lens: data.lens || '',
-        settings: data.settings || '',
-        isAIClassified: data.isAIClassified || false,
-        aiConfidence: data.aiConfidence || 0,
-        createdAt: data.createdAt,
-        updatedAt: data.updatedAt
-      } as PhotoData);
+      photos.push(toPhoto(doc.id, data));
 
       // Log if category was missing or invalid
       if (!data.category || typeof data.category !== 'string' || data.category.trim() === '') {
@@ -314,11 +300,13 @@ export async function getAllPhotos(): Promise<PhotoData[]> {
 }
 
 // Update photo data
-export async function updatePhotoInFirestore(photoId: string, photoData: Partial<PhotoData>): Promise<void> {
+export async function updatePhotoInFirestore(photoId: string, changes: Partial<NewPhoto>): Promise<void> {
   try {
     const photoRef = doc(db, 'photos', photoId);
+    const { image, ...fields } = changes;
     await updateDoc(photoRef, {
-      ...photoData,
+      ...fields,
+      ...(image === undefined ? {} : { imageUrl: image }),
       updatedAt: Timestamp.now()
     });
   } catch (error) {

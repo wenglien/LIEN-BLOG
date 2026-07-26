@@ -4,37 +4,14 @@ import { Eye, Image as ImageIcon, MapPin, Calendar, Rows3, Grid3X3 } from 'lucid
 import { PhotoViewer } from './PhotoViewer';
 import { useI18n } from '@/i18n';
 import { OptimizedImage } from './OptimizedImage';
-import { localizePhoto } from '@/utils/photoLocalization';
+import { localizePhoto, localizePhotoCategory } from '@/utils/photoLocalization';
+import { Photo } from '@/types/photo';
+import { downloadPhoto, photoIdFromLocation, setPhotoLocation } from '@/services/photoViewing';
 
 type PhotoOrientation = 'portrait' | 'landscape' | 'square';
 
-const portfolioCategories = [
-  { id: 'all', key: 'cat_all' },
-  { id: 'portrait', key: 'cat_portrait' },
-  { id: 'landscape', key: 'cat_landscape' },
-  { id: 'street', key: 'cat_street' },
-  { id: 'nature', key: 'cat_nature' },
-  { id: 'architecture', key: 'cat_architecture' },
-  { id: 'fashion', key: 'cat_fashion' },
-  { id: 'sports', key: 'cat_sports' },
-  { id: 'wildlife', key: 'cat_wildlife' }
-];
-
 interface PortfolioSectionProps {
-  photos: Array<{
-    id: string | number;
-    category: string;
-    title: string;
-    description: string;
-    image: string;
-    date: string;
-    location: string;
-    camera: string;
-    lens: string;
-    settings: string;
-    isAIClassified?: boolean;
-    aiConfidence?: number;
-  }>;
+  photos: Photo[];
 }
 
 const PAGE_SIZE = 12;
@@ -46,7 +23,7 @@ export function PortfolioSection({ photos }: PortfolioSectionProps) {
   const [viewMode, setViewMode] = useState<'exhibition' | 'index'>('exhibition');
   const [downloadingItems, setDownloadingItems] = useState<Set<string | number>>(new Set());
   const [downloadedItems, setDownloadedItems] = useState<Set<string | number>>(new Set());
-  const [selectedPhoto, setSelectedPhoto] = useState<typeof photos[0] | null>(null);
+  const [selectedPhoto, setSelectedPhoto] = useState<Photo | null>(null);
   const [isViewerOpen, setIsViewerOpen] = useState(false);
   const [isInitialLoading, setIsInitialLoading] = useState(true);
   // Photos whose image failed to load - hidden from the public grid
@@ -195,12 +172,12 @@ export function PortfolioSection({ photos }: PortfolioSectionProps) {
   // Open photo from share deep link (#photo-<id>) once data is available
   useEffect(() => {
     if (deepLinkConsumedRef.current) return;
-    const match = window.location.hash.match(/^#photo-(.+)$/);
-    if (!match) {
+    const requestedPhotoId = photoIdFromLocation();
+    if (!requestedPhotoId) {
       deepLinkConsumedRef.current = true;
       return;
     }
-    const target = photos.find(p => String(p.id) === decodeURIComponent(match[1] ?? ''));
+    const target = photos.find(photo => String(photo.id) === requestedPhotoId);
     if (target) {
       deepLinkConsumedRef.current = true;
       setSelectedPhoto(target);
@@ -209,18 +186,17 @@ export function PortfolioSection({ photos }: PortfolioSectionProps) {
     }
   }, [photos]);
 
+  const portfolioCategories = useMemo(
+    () => ['all', ...Array.from(new Set(photos.map(photo => photo.category)))],
+    [photos],
+  );
+
   // Use useMemo to optimize category statistics
   const categoryStats = useMemo(() => {
-    const stats = new Map();
+    const stats = new Map<string, number>([['all', photos.length]]);
 
-    // Calculate photo count for each category
-    const getCategoryCount = (categoryId: string) => {
-      if (categoryId === 'all') return photos.length;
-      return photos.filter(item => item.category === categoryId).length;
-    };
-
-    portfolioCategories.forEach(category => {
-      stats.set(category.id, getCategoryCount(category.id));
+    photos.forEach(photo => {
+      stats.set(photo.category, (stats.get(photo.category) ?? 0) + 1);
     });
 
     return stats;
@@ -232,8 +208,8 @@ export function PortfolioSection({ photos }: PortfolioSectionProps) {
   }, [categoryStats]);
 
   const visibleCategories = useMemo(
-    () => portfolioCategories.filter(category => category.id === 'all' || getCategoryCount(category.id) > 0),
-    [getCategoryCount]
+    () => portfolioCategories.filter(category => category === 'all' || getCategoryCount(category) > 0),
+    [portfolioCategories, getCategoryCount]
   );
 
   const rememberPhotoOrientation = useCallback((id: string | number, image: HTMLImageElement) => {
@@ -248,24 +224,13 @@ export function PortfolioSection({ photos }: PortfolioSectionProps) {
   }, []);
 
   // Use useCallback to optimize download function
-  const downloadImage = useCallback(async (item: typeof photos[0]) => {
+  const downloadImage = useCallback(async (item: Photo) => {
     if (downloadingItems.has(item.id)) return;
 
     setDownloadingItems(prev => new Set(prev).add(item.id));
 
     try {
-      // Create a temporary anchor tag to download image
-      const response = await fetch(item.image);
-      const blob = await response.blob();
-      const url = window.URL.createObjectURL(blob);
-
-      const link = document.createElement('a');
-      link.href = url;
-      link.download = `${localizePhoto(item, lang, t).title}-LIEN-Photography.jpg`;
-      document.body.appendChild(link);
-      link.click();
-      document.body.removeChild(link);
-      window.URL.revokeObjectURL(url);
+      await downloadPhoto(item, `${localizePhoto(item, lang, t).title}-LIEN-Photography.jpg`);
 
       // Show download success state
       setDownloadedItems(prev => new Set(prev).add(item.id));
@@ -288,17 +253,17 @@ export function PortfolioSection({ photos }: PortfolioSectionProps) {
     }
   }, [downloadingItems, lang, t]);
 
-  const openPhotoViewer = (photo: typeof photos[0]) => {
+  const openPhotoViewer = (photo: Photo) => {
     setSelectedPhoto(photo);
     setIsViewerOpen(true);
     // Keep URL shareable - matches the viewer's copy-link format
-    history.replaceState(null, '', `#photo-${encodeURIComponent(String(photo.id))}`);
+    setPhotoLocation(photo.id);
   };
 
   const closePhotoViewer = () => {
     setIsViewerOpen(false);
     setSelectedPhoto(null);
-    history.replaceState(null, '', window.location.pathname + window.location.search);
+    setPhotoLocation(null);
   };
 
   const goToNextPhoto = () => {
@@ -307,7 +272,7 @@ export function PortfolioSection({ photos }: PortfolioSectionProps) {
     const nextIndex = (currentIndex + 1) % filteredItems.length;
     const next = filteredItems[nextIndex] || null;
     setSelectedPhoto(next);
-    if (next) history.replaceState(null, '', `#photo-${encodeURIComponent(String(next.id))}`);
+    if (next) setPhotoLocation(next.id);
   };
 
   const goToPreviousPhoto = () => {
@@ -316,7 +281,7 @@ export function PortfolioSection({ photos }: PortfolioSectionProps) {
     const prevIndex = currentIndex === 0 ? filteredItems.length - 1 : currentIndex - 1;
     const prev = filteredItems[prevIndex] || null;
     setSelectedPhoto(prev);
-    if (prev) history.replaceState(null, '', `#photo-${encodeURIComponent(String(prev.id))}`);
+    if (prev) setPhotoLocation(prev.id);
   };
 
   const getCurrentPhotoIndex = () => {
@@ -427,16 +392,16 @@ export function PortfolioSection({ photos }: PortfolioSectionProps) {
 
                 <div className="exhibition-category-scroll" aria-label={t('portfolio_title')}>
                   {visibleCategories.map(category => {
-                    const isActive = activeCategory === category.id;
+                    const isActive = activeCategory === category;
                     return (
                       <button
                         type="button"
-                        key={category.id}
-                        onClick={() => transitionIntoGallery(() => setActiveCategory(category.id))}
+                        key={category}
+                        onClick={() => transitionIntoGallery(() => setActiveCategory(category))}
                         className={isActive ? 'is-active' : ''}
                       >
-                        <span>{t(category.key)}</span>
-                        <span>{String(getCategoryCount(category.id)).padStart(2, '0')}</span>
+                        <span>{category === 'all' ? t('cat_all') : localizePhotoCategory(category, t)}</span>
+                        <span>{String(getCategoryCount(category)).padStart(2, '0')}</span>
                       </button>
                     );
                   })}
@@ -476,7 +441,7 @@ export function PortfolioSection({ photos }: PortfolioSectionProps) {
               return (
                 <React.Fragment key={item.id}>
                   <motion.article
-                    className={`exhibition-piece exhibition-piece-${index % 6}`}
+                    className={`exhibition-piece exhibition-piece-${index % 6} orientation-${photoOrientations[String(item.id)] || 'landscape'}`}
                     initial={{ opacity: 0, y: 70 }}
                     whileInView={{ opacity: 1, y: 0 }}
                     transition={{ duration: 0.9, ease: [0.22, 1, 0.36, 1] }}
@@ -506,7 +471,7 @@ export function PortfolioSection({ photos }: PortfolioSectionProps) {
 
                   <div className="exhibition-piece-caption">
                     <div>
-                      <span>{t('exhibition_piece')} {pieceNumber}</span>
+                      <span className="exhibition-piece-label">{t('exhibition_piece')} {pieceNumber}</span>
                       <h3>{displayItem.title}</h3>
                     </div>
                     <div className="exhibition-piece-meta">

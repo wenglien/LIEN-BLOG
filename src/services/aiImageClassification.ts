@@ -1,45 +1,9 @@
 import { visionImageClassificationService } from './visionImageClassification';
+import { ClassificationResult, Photo, PhotoCategory } from '@/types/photo';
+export { PHOTO_CATEGORIES, type ClassificationResult, type PhotoCategory } from '@/types/photo';
 
-// Photography category mapping - Extended with more detailed categories
-export const PHOTO_CATEGORIES = {
-  'portrait': 'Portrait Photography',
-  'landscape': 'Landscape Photography',
-  'street': 'Street Photography',
-  'nature': 'Nature Photography',
-  'architecture': 'Architecture Photography',
-  'fashion': 'Fashion Photography',
-  'sports': 'Sports Photography',
-  'wildlife': 'Wildlife Photography',
-  'macro': 'Macro Photography',
-  'abstract': 'Abstract Photography',
-  'event': 'Event Photography',
-  'wedding': 'Wedding Photography',
-  'food': 'Food Photography',
-  'travel': 'Travel Photography',
-  'black-and-white': 'Black & White Photography',
-  'night': 'Night Photography',
-  'underwater': 'Underwater Photography',
-  'aerial': 'Aerial Photography',
-  'documentary': 'Documentary Photography',
-  'fine-art': 'Fine Art Photography',
-  'product': 'Product Photography',
-  'concert': 'Concert Photography',
-  'astrophotography': 'Astrophotography',
-  'urban': 'Urban Photography'
-} as const;
-
-export type PhotoCategory = keyof typeof PHOTO_CATEGORIES;
-
-// Image classification result interface
-export interface ClassificationResult {
-  category: PhotoCategory;
-  confidence: number;
-  allPredictions: Array<{
-    category: PhotoCategory;
-    confidence: number;
-  }>;
-  detectedObjects?: string[]; // Objects detected by Vision API
-  reasoning?: string; // Classification reasoning
+export function photoFileKey(file: File): string {
+  return `${file.name}-${file.size}`;
 }
 
 // AI Image Classification Service - Google Cloud Vision API Version
@@ -50,8 +14,35 @@ export class AIImageClassificationService {
 
   // Simple fallback classification logic (when Vision API is unavailable)
   private getBasicCategory(): PhotoCategory {
-    // If Vision API is unavailable, return nature as default
-    return 'nature';
+    return 'creative';
+  }
+
+  private fallbackResult(reason: string): ClassificationResult {
+    const category = this.getBasicCategory();
+    return {
+      category,
+      confidence: 0.3,
+      allPredictions: [{ category, confidence: 0.3 }],
+      detectedObjects: ['Unidentified'],
+      reasoning: reason,
+    };
+  }
+
+  private loadImage(src: string, crossOrigin: boolean): Promise<HTMLImageElement> {
+    return new Promise((resolve, reject) => {
+      const image = new Image();
+      const timeout = window.setTimeout(() => reject(new Error('Image load timeout')), 30000);
+      if (crossOrigin) image.crossOrigin = 'anonymous';
+      image.onload = () => {
+        window.clearTimeout(timeout);
+        resolve(image);
+      };
+      image.onerror = () => {
+        window.clearTimeout(timeout);
+        reject(new Error(`Failed to load ${src}`));
+      };
+      image.src = src;
+    });
   }
 
   // Classify image - Google Cloud Vision API
@@ -72,33 +63,63 @@ export class AIImageClassificationService {
 
       // Simple fallback: return creative photography
       console.warn('Using fallback classification: Creative Photography');
-      return {
-        category: this.getBasicCategory(),
-        confidence: 0.3,
-        allPredictions: [{ category: this.getBasicCategory(), confidence: 0.3 }],
-        detectedObjects: ['Unidentified'],
-        reasoning: 'Vision API unavailable, classified as abstract photography'
-      };
+      return this.fallbackResult('Vision unavailable; kept in Creative Photography for review');
     }
   }
 
+  async classifyFiles(
+    files: File[],
+    onProgress?: (file: File, progress: number) => void,
+  ): Promise<Map<string, ClassificationResult>> {
+    const results = new Map<string, ClassificationResult>();
 
-  // Batch classify images - Google Cloud Vision API
-  async classifyMultipleImages(imageElements: HTMLImageElement[]): Promise<ClassificationResult[]> {
-    if (visionImageClassificationService.isServiceReady()) {
-      console.log(`Using Google Cloud Vision API to batch analyze ${imageElements.length} images...`);
-      return await visionImageClassificationService.classifyMultipleImages(imageElements);
-    } else {
-      // If Vision API is unavailable, return default classification
-      console.warn('Vision API unavailable, all photos will be classified as Creative Photography');
-      return imageElements.map(() => ({
-        category: this.getBasicCategory(),
-        confidence: 0.3,
-        allPredictions: [{ category: this.getBasicCategory(), confidence: 0.3 }],
-        detectedObjects: ['Unidentified'],
-        reasoning: 'Vision API unavailable, classified as abstract photography'
-      }));
+    for (const [index, file] of files.entries()) {
+      const objectUrl = URL.createObjectURL(file);
+      try {
+        const image = new Image();
+        await new Promise<void>((resolve, reject) => {
+          image.onload = () => resolve();
+          image.onerror = () => reject(new Error(`Failed to load ${file.name}`));
+          image.src = objectUrl;
+        });
+        results.set(photoFileKey(file), await this.classifyImage(image));
+      } catch (error) {
+        console.error(`Failed to prepare ${file.name} for classification:`, error);
+        results.set(photoFileKey(file), this.fallbackResult('Image preparation failed; kept for manual review'));
+      } finally {
+        URL.revokeObjectURL(objectUrl);
+        onProgress?.(file, ((index + 1) / files.length) * 100);
+      }
+      if (index < files.length - 1) await new Promise(resolve => window.setTimeout(resolve, 500));
     }
+
+    return results;
+  }
+
+  async classifyPhotos(
+    photos: Pick<Photo, 'id' | 'image'>[],
+    onProgress?: (photo: Pick<Photo, 'id' | 'image'>, progress: number) => void,
+  ): Promise<Map<string, ClassificationResult>> {
+    const results = new Map<string, ClassificationResult>();
+
+    for (const [index, photo] of photos.entries()) {
+      if (!photo.image) continue;
+      try {
+        let image: HTMLImageElement;
+        try {
+          image = await this.loadImage(photo.image, true);
+        } catch {
+          image = await this.loadImage(photo.image, false);
+        }
+        results.set(String(photo.id), await this.classifyImage(image));
+        onProgress?.(photo, ((index + 1) / photos.length) * 100);
+      } catch (error) {
+        console.error(`Failed to classify photo ${photo.id}:`, error);
+      }
+      if (index < photos.length - 1) await new Promise(resolve => window.setTimeout(resolve, 500));
+    }
+
+    return results;
   }
 
   // Check if Vision API is available
@@ -117,16 +138,6 @@ export class AIImageClassificationService {
     return services;
   }
 
-  // Reinitialize Vision API service
-  async reloadModel(): Promise<void> {
-    try {
-      await visionImageClassificationService.reinitialize();
-      console.log('Google Cloud Vision API service reinitialization complete');
-    } catch (error) {
-      console.error('Vision API reinitialization failed:', error);
-      throw error;
-    }
-  }
 }
 
 // Create singleton instance

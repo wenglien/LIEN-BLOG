@@ -1,6 +1,5 @@
 /* Photography Art Style Font Combination - Traditional Chinese Optimization */
 @import url('https://fonts.googleapis.com/css2?family=Crimson+Text:ital,wght@0,400;0,600;1,400&family=Ma+Shan+Zheng&family=Noto+Sans+TC:wght@300;400;500;600&family=Noto+Serif+TC:wght@300;400;600&display=swap');
-
 @font-face {
   font-family: 'LXGW WenKai TC';
   font-style: normal;
@@ -8,7 +7,6 @@
   font-weight: 400;
   src: url('../../node_modules/@fontsource/lxgw-wenkai-tc/files/lxgw-wenkai-tc-chinese-traditional-400-normal.woff2') format('woff2');
 }
-
 @font-face {
   font-family: 'Iansui';
   font-style: normal;
@@ -5258,10 +5256,6 @@ html[lang="zh-Hant"] .admin-workspace-frame button {
   margin: 0 auto;
 }
 
-.art-footer-heading {
-  padding-bottom: clamp(4.5rem, 8vw, 8rem);
-}
-
 .art-footer-heading-meta {
   display: flex;
   align-items: center;
@@ -5272,14 +5266,6 @@ html[lang="zh-Hant"] .admin-workspace-frame button {
   font-family: 'Helvetica Neue', sans-serif;
   font-size: 0.66rem;
   letter-spacing: 0.25em;
-}
-
-.art-footer-brand-row {
-  display: grid;
-  grid-template-columns: minmax(0, 1.1fr) minmax(330px, 0.9fr);
-  gap: clamp(3rem, 9vw, 9rem);
-  align-items: end;
-  padding-top: clamp(3rem, 6vw, 6rem);
 }
 
 .art-footer-brand-copy {
@@ -5354,16 +5340,6 @@ html[lang="zh-Hant"] .admin-workspace-frame button {
   width: 1.4rem;
   height: 1.4rem;
   flex: 0 0 auto;
-}
-
-.art-footer-directory {
-  display: grid;
-  grid-template-columns: minmax(0, 2fr) minmax(190px, 0.7fr) minmax(250px, 0.85fr);
-  gap: clamp(2rem, 6vw, 6rem);
-  align-items: end;
-  padding: clamp(2.25rem, 4vw, 3.75rem) 0;
-  border-top: 1px solid rgba(217, 237, 233, 0.13);
-  border-bottom: 1px solid rgba(217, 237, 233, 0.13);
 }
 
 .art-footer-nav {
@@ -5536,17 +5512,8 @@ html[lang="zh-Hant"] .admin-workspace-frame button {
 }
 
 @media (max-width: 900px) {
-  .art-footer-brand-row {
-    grid-template-columns: minmax(0, 1fr);
-    gap: 3rem;
-  }
-
   .art-footer-contact-cta {
     width: min(100%, 520px);
-  }
-
-  .art-footer-directory {
-    grid-template-columns: minmax(0, 1fr) auto;
   }
 
   .art-footer-nav {
@@ -5582,17 +5549,9 @@ html[lang="zh-Hant"] .admin-workspace-frame button {
     width: min(100% - 2rem, 1340px);
   }
 
-  .art-footer-heading {
-    padding-bottom: 4.5rem;
-  }
-
   .art-footer-heading-meta {
     font-size: 0.53rem;
     letter-spacing: 0.17em;
-  }
-
-  .art-footer-brand-row {
-    padding-top: 3.5rem;
   }
 
   .art-footer-intro {
@@ -5603,12 +5562,6 @@ html[lang="zh-Hant"] .admin-workspace-frame button {
   .art-footer-contact-cta {
     min-height: 128px;
     padding: 1.35rem;
-  }
-
-  .art-footer-directory {
-    grid-template-columns: minmax(0, 1fr);
-    gap: 2.5rem;
-    padding: 2rem 0 2.75rem;
   }
 
   .art-footer-nav {
@@ -6221,5 +6174,520 @@ html[lang="zh-Hant"] .admin-workspace-frame button {
 
   .back-to-top-control {
     bottom: calc(8.4rem + env(safe-area-inset-bottom, 0px)) !important;
+  }
+}
+
+/* Curatorial grid ----------------------------------------------------------
+   The gallery and footer share one quiet twelve-column exhibition system. */
+.portfolio-gallery-content {
+  width: min(100% - 3rem, 1380px);
+  max-width: none !important;
+  padding-inline: 0 !important;
+}
+
+.exhibition-gallery {
+  display: grid !important;
+  grid-template-columns: repeat(12, minmax(0, 1fr));
+  grid-auto-flow: dense;
+  gap: clamp(0.75rem, 1.35vw, 1.2rem) !important;
+  padding: 0 !important;
+}
+
+.exhibition-piece,
+.exhibition-piece:nth-child(even),
+.exhibition-piece:nth-child(3n) {
+  width: auto !important;
+  min-width: 0;
+  min-height: clamp(330px, 36vw, 510px);
+  margin: 0 !important;
+  align-self: stretch !important;
+  grid-column: span 4;
+}
+
+.exhibition-piece-0 {
+  min-height: clamp(620px, 64vw, 850px);
+  grid-column: span 7;
+  grid-row: span 2;
+}
+
+.exhibition-piece-1,
+.exhibition-piece-2 {
+  grid-column: span 5;
+}
+
+.exhibition-piece-3,
+.exhibition-piece-4,
+.exhibition-piece-5 {
+  min-height: clamp(360px, 32vw, 470px);
+}
+
+.exhibition-gallery:has(.exhibition-piece:first-child:last-child) .exhibition-piece {
+  min-height: clamp(520px, 58vw, 760px);
+  grid-column: 1 / -1;
+  grid-row: auto;
+}
+
+.exhibition-gallery:has(.exhibition-piece:nth-child(2):last-child) .exhibition-piece {
+  min-height: clamp(440px, 46vw, 620px);
+  grid-column: span 6;
+  grid-row: auto;
+}
+
+.exhibition-piece-frame,
+.exhibition-piece-0 .exhibition-piece-frame,
+.exhibition-piece-1 .exhibition-piece-frame,
+.exhibition-piece-2 .exhibition-piece-frame,
+.exhibition-piece-3 .exhibition-piece-frame,
+.exhibition-piece-4 .exhibition-piece-frame,
+.exhibition-piece-5 .exhibition-piece-frame {
+  --mount-x: 0px;
+  --mount-top: 0px;
+  --mount-bottom: 0px;
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  aspect-ratio: auto !important;
+  overflow: hidden;
+  border: 1px solid rgba(221, 238, 233, 0.16);
+  border-radius: 3px;
+  background: #05090a;
+  box-shadow: 0 26px 75px rgba(0, 0, 0, 0.38);
+}
+
+.exhibition-piece-frame::before {
+  z-index: 5;
+  inset: 0.7rem;
+  border: 1px solid rgba(237, 247, 244, 0.14);
+  box-shadow: inset 0 0 30px rgba(0, 0, 0, 0.2);
+}
+
+.exhibition-piece-frame::after {
+  z-index: 4;
+  inset: -60% -100%;
+  background: linear-gradient(112deg, transparent 43%, rgba(238, 249, 246, 0.12) 50%, transparent 57%);
+}
+
+.exhibition-piece-frame > .exhibition-piece-image,
+.exhibition-piece-frame > .exhibition-piece-wash {
+  inset: 0 !important;
+  width: 100% !important;
+  height: 100% !important;
+}
+
+.exhibition-piece-frame > .exhibition-piece-image {
+  object-fit: cover;
+  filter: saturate(0.88) contrast(1.04) brightness(0.9);
+  transform: scale(1.002);
+  transition: transform 1.1s cubic-bezier(0.22, 1, 0.36, 1), filter 700ms ease;
+}
+
+.exhibition-piece-frame:hover > .exhibition-piece-image {
+  filter: saturate(1) contrast(1.02) brightness(0.98);
+  transform: scale(1.045);
+}
+
+.exhibition-piece-wash {
+  z-index: 2;
+  background:
+    linear-gradient(180deg, rgba(2, 7, 8, 0.02) 40%, rgba(2, 7, 8, 0.9) 100%),
+    linear-gradient(90deg, rgba(2, 7, 8, 0.22), transparent 45%);
+}
+
+.exhibition-piece-number {
+  top: 1.45rem;
+  right: 1.4rem;
+  bottom: auto;
+  left: auto;
+  color: rgba(241, 247, 245, 0.7);
+  text-shadow: 0 2px 15px rgba(0, 0, 0, 0.6);
+}
+
+.exhibition-piece-caption {
+  position: absolute;
+  z-index: 7;
+  right: 0;
+  bottom: 0;
+  left: 0;
+  display: flex;
+  min-height: 8.5rem;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: 1rem;
+  margin: 0;
+  padding: clamp(1.25rem, 2vw, 2rem);
+  border-top: 1px solid rgba(235, 245, 242, 0.12);
+  color: rgba(242, 247, 245, 0.92);
+  background: linear-gradient(180deg, transparent, rgba(2, 6, 7, 0.76));
+  pointer-events: none;
+}
+
+.exhibition-piece-caption::before {
+  display: none;
+}
+
+.exhibition-piece-label {
+  display: block;
+  margin-bottom: 0.5rem;
+  color: rgba(195, 220, 215, 0.54);
+  font-family: 'Helvetica Neue', sans-serif;
+  font-size: 0.58rem;
+  letter-spacing: 0.26em;
+}
+
+.exhibition-piece-caption h3 {
+  max-width: 28ch;
+  color: rgba(246, 249, 248, 0.94);
+  font-size: clamp(1.05rem, 1.55vw, 1.45rem);
+  line-height: 1.35;
+}
+
+.exhibition-piece-meta {
+  max-width: 42%;
+  color: rgba(215, 229, 225, 0.58);
+}
+
+.exhibition-piece-focus {
+  z-index: 8;
+  border-color: rgba(239, 248, 245, 0.24);
+  background: rgba(5, 13, 14, 0.42);
+  backdrop-filter: blur(14px);
+}
+
+.exhibition-index-grid {
+  grid-template-columns: repeat(12, minmax(0, 1fr));
+  gap: clamp(0.65rem, 1.15vw, 1rem);
+  padding-inline: 0;
+}
+
+.exhibition-index-grid .portfolio-editorial-card {
+  grid-column: span 3;
+  aspect-ratio: 1;
+  border-radius: 3px;
+}
+
+.exhibition-index-grid .portfolio-editorial-card.orientation-landscape {
+  grid-column: span 6;
+  aspect-ratio: 2 / 1;
+}
+
+.exhibition-index-grid .portfolio-editorial-card img,
+.exhibition-index-grid .portfolio-editorial-card .photo-card-scrim,
+.exhibition-index-grid .portfolio-editorial-card .photo-info-glass {
+  border-radius: 3px;
+}
+
+/* Footer grid -------------------------------------------------------------- */
+.art-footer {
+  min-height: 0;
+  padding: clamp(5.5rem, 9vw, 8rem) 0 2rem;
+  background:
+    radial-gradient(circle at 72% 8%, rgba(89, 154, 149, 0.1), transparent 34%),
+    linear-gradient(180deg, #03090a, #010404 70%);
+}
+
+.art-footer-inner {
+  width: min(100% - 3rem, 1380px);
+}
+
+.art-footer-grid {
+  position: relative;
+  display: grid;
+  grid-template-columns: repeat(12, minmax(0, 1fr));
+  border-top: 1px solid rgba(217, 237, 233, 0.16);
+  border-left: 1px solid rgba(217, 237, 233, 0.16);
+  box-shadow: 0 40px 110px rgba(0, 0, 0, 0.3);
+}
+
+.art-footer-brand-panel,
+.art-footer-contact-cta,
+.art-footer-nav,
+.art-footer-connect-panel {
+  position: relative;
+  overflow: hidden;
+  border-right: 1px solid rgba(217, 237, 233, 0.16);
+  border-bottom: 1px solid rgba(217, 237, 233, 0.16);
+  background:
+    linear-gradient(145deg, rgba(230, 242, 239, 0.035), transparent 42%),
+    rgba(5, 13, 14, 0.54);
+}
+
+.art-footer-brand-panel {
+  grid-column: span 7;
+  min-height: 390px;
+  padding: clamp(1.5rem, 3vw, 2.6rem);
+}
+
+.art-footer-heading-meta {
+  padding-bottom: 1rem;
+  border-bottom-color: rgba(217, 237, 233, 0.12);
+}
+
+.art-footer-brand-copy {
+  display: flex;
+  height: calc(100% - 2rem);
+  flex-direction: column;
+  justify-content: flex-end;
+}
+
+.art-footer-kicker {
+  margin-bottom: 0.8rem;
+}
+
+.art-footer-brand-mark {
+  margin-left: -0.045em;
+  color: rgba(238, 246, 244, 0.92);
+  font-family: 'Crimson Text', 'Times New Roman', serif;
+  font-size: clamp(5rem, 10vw, 9.5rem);
+  font-style: italic;
+  font-weight: 400;
+  line-height: 0.72;
+  letter-spacing: -0.07em;
+}
+
+.art-footer-intro {
+  max-width: 40rem;
+  margin-top: clamp(1.8rem, 3vw, 2.8rem);
+  color: rgba(219, 232, 228, 0.62);
+}
+
+.art-footer-contact-cta {
+  grid-column: span 5;
+  min-height: 390px;
+  padding: clamp(1.5rem, 3vw, 2.6rem);
+  border: 0;
+  border-right: 1px solid rgba(217, 237, 233, 0.16);
+  border-bottom: 1px solid rgba(217, 237, 233, 0.16);
+  background:
+    radial-gradient(circle at 85% 12%, rgba(147, 205, 197, 0.2), transparent 45%),
+    linear-gradient(145deg, rgba(170, 215, 207, 0.08), rgba(5, 13, 14, 0.46));
+}
+
+.art-footer-contact-cta::before {
+  content: 'LET\2019S CREATE';
+  position: absolute;
+  top: 2rem;
+  left: 2rem;
+  color: rgba(210, 232, 227, 0.34);
+  font-family: 'Helvetica Neue', sans-serif;
+  font-size: 0.58rem;
+  letter-spacing: 0.32em;
+}
+
+.art-footer-contact-cta:hover {
+  border-color: rgba(217, 237, 233, 0.16);
+  background-color: transparent;
+  box-shadow: inset 0 0 80px rgba(124, 188, 179, 0.08);
+}
+
+.art-footer-contact-cta small {
+  color: rgba(211, 229, 225, 0.58);
+}
+
+.art-footer-contact-cta strong {
+  font-size: clamp(0.9rem, 1.35vw, 1.15rem);
+}
+
+.art-footer-contact-cta svg {
+  width: 2rem;
+  height: 2rem;
+  transition: transform 350ms cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+.art-footer-contact-cta:hover svg {
+  transform: translate(0.25rem, -0.25rem);
+}
+
+.art-footer-nav {
+  grid-column: span 8;
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 0;
+  padding: 3.8rem 0 0;
+}
+
+.art-footer-panel-label {
+  position: absolute;
+  top: 1.35rem;
+  left: 1.6rem;
+  color: rgba(188, 216, 210, 0.4);
+  font-family: 'Helvetica Neue', sans-serif;
+  font-size: 0.57rem;
+  letter-spacing: 0.3em;
+}
+
+.art-footer-nav a {
+  min-height: 94px;
+  padding: 1.1rem 1.6rem;
+  border-top: 1px solid rgba(217, 237, 233, 0.09);
+  border-right: 1px solid rgba(217, 237, 233, 0.09);
+  border-bottom: 0;
+  color: rgba(226, 237, 233, 0.72);
+}
+
+.art-footer-nav a:hover {
+  padding-left: 1.9rem;
+  background: rgba(202, 231, 225, 0.035);
+}
+
+.art-footer-nav-label {
+  font-size: clamp(1rem, 1.5vw, 1.25rem);
+}
+
+.art-footer-connect-panel {
+  grid-column: span 4;
+  display: flex;
+  min-height: 228px;
+  flex-direction: column;
+  justify-content: flex-end;
+  gap: 2rem;
+  padding: 3.8rem 1.6rem 1.6rem;
+}
+
+.art-footer-connect-panel .art-footer-contact-list a {
+  color: rgba(228, 239, 236, 0.72);
+}
+
+.art-footer-location {
+  line-height: 1.7;
+}
+
+.art-footer-socials {
+  justify-content: flex-start;
+}
+
+.art-footer-socials a {
+  border-radius: 3px;
+}
+
+.art-footer-baseline {
+  padding-top: 1.5rem;
+}
+
+@media (max-width: 1024px) {
+  .exhibition-piece,
+  .exhibition-piece:nth-child(even),
+  .exhibition-piece:nth-child(3n),
+  .exhibition-piece-0,
+  .exhibition-piece-1,
+  .exhibition-piece-2,
+  .exhibition-piece-3,
+  .exhibition-piece-4,
+  .exhibition-piece-5 {
+    min-height: clamp(360px, 52vw, 560px);
+    grid-column: span 6;
+    grid-row: auto;
+  }
+
+  .art-footer-brand-panel,
+  .art-footer-contact-cta {
+    grid-column: span 6;
+  }
+
+  .art-footer-nav,
+  .art-footer-connect-panel {
+    grid-column: span 6;
+  }
+}
+
+@media (max-width: 767px) {
+  .portfolio-gallery-content,
+  .art-footer-inner {
+    width: min(100% - 1.5rem, 1380px);
+  }
+
+  .portfolio-gallery-content {
+    margin-top: 2rem;
+  }
+
+  .exhibition-gallery {
+    grid-template-columns: minmax(0, 1fr);
+    gap: 0.8rem !important;
+  }
+
+  .exhibition-piece,
+  .exhibition-piece:nth-child(even),
+  .exhibition-piece:nth-child(3n),
+  .exhibition-piece-0,
+  .exhibition-piece-1,
+  .exhibition-piece-2,
+  .exhibition-piece-3,
+  .exhibition-piece-4,
+  .exhibition-piece-5 {
+    min-height: clamp(420px, 128vw, 610px);
+    grid-column: auto;
+  }
+
+  .exhibition-piece.orientation-landscape {
+    min-height: clamp(330px, 82vw, 450px);
+  }
+
+  .exhibition-piece-caption {
+    min-height: 7.5rem;
+    padding: 1.15rem;
+  }
+
+  .exhibition-piece-meta {
+    display: none;
+  }
+
+  .exhibition-index-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 0.55rem;
+  }
+
+  .exhibition-index-grid .portfolio-editorial-card,
+  .exhibition-index-grid .portfolio-editorial-card.orientation-landscape {
+    grid-column: span 1;
+    aspect-ratio: 1;
+  }
+
+  .art-footer {
+    padding-top: 4rem;
+  }
+
+  .art-footer-grid {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .art-footer-brand-panel,
+  .art-footer-contact-cta,
+  .art-footer-nav,
+  .art-footer-connect-panel {
+    grid-column: auto;
+  }
+
+  .art-footer-brand-panel,
+  .art-footer-contact-cta {
+    min-height: 310px;
+    padding: 1.35rem;
+  }
+
+  .art-footer-brand-mark {
+    font-size: clamp(5rem, 28vw, 7.5rem);
+  }
+
+  .art-footer-contact-cta::before {
+    top: 1.35rem;
+    left: 1.35rem;
+  }
+
+  .art-footer-nav {
+    grid-template-columns: minmax(0, 1fr);
+    padding-top: 3.4rem;
+  }
+
+  .art-footer-nav a {
+    min-height: 72px;
+    border-right: 0;
+  }
+
+  .art-footer-connect-panel {
+    min-height: 240px;
+    padding: 3.6rem 1.35rem 1.35rem;
+  }
+
+  .art-footer-baseline {
+    font-size: 0.52rem;
   }
 }

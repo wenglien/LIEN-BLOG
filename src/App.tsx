@@ -4,7 +4,7 @@ import { VideoBackground } from './components/media/VideoBackground';
 import { NavigationBar } from './components/layout/NavigationBar';
 import { HeroSection } from './components/sections/HeroSection';
 import { AuthProvider, useAuth } from './contexts/AuthContext';
-import { getAllPhotos, PhotoData } from './services/photoService';
+import { getAllPhotos } from './services/photoService';
 import { PerformanceMonitor } from './components/system/PerformanceMonitor';
 import { ErrorBoundary } from './components/system/ErrorBoundary';
 import { Photo } from './types/photo';
@@ -81,40 +81,13 @@ function AppContent() {
 
       // Asynchronously load Firebase photos
       try {
-        const firebasePhotos: PhotoData[] = await getAllPhotos();
+        const firebasePhotos = await getAllPhotos();
         console.log('Number of photos loaded from Firebase:', firebasePhotos.length);
 
         if (firebasePhotos.length > 0) {
-          const formattedPhotos: Photo[] = firebasePhotos.map((photo: PhotoData) => {
-            // Ensure category is valid, fallback to 'creative' if undefined or invalid
-            const category = (photo.category && typeof photo.category === 'string' && photo.category.trim() !== '')
-              ? photo.category.trim()
-              : 'creative';
-
-            // Ensure description is valid, preserve empty string if intentionally empty
-            const description = (photo.description && typeof photo.description === 'string')
-              ? photo.description.trim()
-              : '';
-
-            return {
-              id: photo.id || '',
-              category: category,
-              title: photo.title || '',
-              description: description,
-              image: photo.imageUrl || '', // Use Firebase Storage URL
-              date: photo.date || new Date().toISOString().slice(0, 10),
-              location: photo.location || '',
-              camera: photo.camera || '',
-              lens: photo.lens || '',
-              settings: photo.settings || '',
-              isAIClassified: photo.isAIClassified || false,
-              aiConfidence: photo.aiConfidence || 0
-            };
-          });
-
           // Update to Firebase photos
-          console.log('Updating portfolio photos, count:', formattedPhotos.length);
-          setPortfolioPhotos(formattedPhotos);
+          console.log('Updating portfolio photos, count:', firebasePhotos.length);
+          setPortfolioPhotos(firebasePhotos);
         } else {
           console.warn('No photos in Firebase, using default photos');
           // Keep default photos

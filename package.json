@@ -29,6 +29,7 @@
       },
       "scripts": {
             "dev": "vite --config config/vite.config.ts",
+            "check:photo-model": "check_dir=$(mktemp -d) && tsc scripts/check-photo-model.ts src/types/photo.ts --module commonjs --target es2020 --outDir \"$check_dir\" --esModuleInterop --skipLibCheck && node \"$check_dir/scripts/check-photo-model.js\"",
             "typecheck": "tsc --noEmit",
             "build": "npm run typecheck && vite build --config config/vite.config.ts",
             "deploy": "npm run build && firebase deploy --only hosting",
